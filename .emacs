@@ -4,8 +4,10 @@
 ;; To make font loading faster.
 (modify-frame-parameters nil '((wait-for-wm . nil)))
 
+(hl-line-mode t)
+
 ;; Erlang Mode
-(push "~/.emacs.d/erlang" load-path)
+(setq load-path (cons "~/.emacs.d/erlang" load-path))
 (require 'erlang-start)
 (setq auto-mode-alist (append auto-mode-alist
                               '(("\\.rel$" . erlang-mode)
@@ -32,12 +34,6 @@
 ;; Interactively Do Things (smart tab-completion in find file etc.)
 (require 'ido)
 (ido-mode t)
-
-(setq load-path (cons "~/.emacs.d/auto-complete" load-path))
-(require 'auto-complete)
-(auto-complete-mode t)
-
-(hl-line-mode t)
 
 (require 'highlight-parentheses)
 (defun turn-on-highlight-parentheses-mode ()
@@ -86,11 +82,19 @@
 (setq cua-auto-tabify-rectangles nil) ;; Don't tabify after rectangle commands
 (transient-mark-mode 1) ;; No region when it is not highlighted
 (setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
+
+;; auto-complete stuff
+(setq load-path (cons "~/.emacs.d/auto-complete" load-path))
+(require 'auto-complete)
+(global-auto-complete-mode t)
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(ac-auto-start 4)
+ '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  )
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
