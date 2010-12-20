@@ -34,6 +34,8 @@
 
 (global-set-key (read-kbd-macro "C-a") 'move-beginning-of-line) ; move-beginning-of-line
 
+(global-set-key (kbd "M-RET") 'ns-toggle-fullscreen) ; Fullscreen mode for git://github.com/typester/emacs.git
+
 ; search forward with Ctrl-F
 (global-set-key (read-kbd-macro "C-F") 'isearch-forward)
 (define-key isearch-mode-map (read-kbd-macro "C-F") (lookup-key isearch-mode-map "\C-s"))
