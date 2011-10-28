@@ -95,10 +95,12 @@
   ;; If there is more than one, they won't work right.
  '(ac-auto-start 4)
  '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
- )
+ '(cua-mode t nil (cua-base))
+ '(safe-local-variable-values (quote ((erlang-indent-level . 4) (erlang-indent-level . 2)))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(font-lock-constant-face ((t (:foreground "#73d216")))))
+ '(font-lock-constant-face ((t (:foreground "#73d216"))))
+ '(font-lock-type-face ((t (:foreground "YellowGreen")))))

@@ -1,7 +1,7 @@
 ;; erlang.el --- Major modes for editing and running Erlang
 ;; %CopyrightBegin%
 ;;
-;; Copyright Ericsson AB 1996-2010. All Rights Reserved.
+;; Copyright Ericsson AB 1996-2011. All Rights Reserved.
 ;;
 ;; The contents of this file are subject to the Erlang Public License,
 ;; Version 1.1, (the "License"); you may not use this file except in
@@ -386,7 +386,8 @@ then no prototype is inserted.
 The test is performed by the function `erlang-test-criteria-list'.")
 
 (defvar erlang-electric-arrow-criteria
-  '(erlang-next-lines-empty-p
+  '(erlang-stop-when-in-type-spec
+    erlang-next-lines-empty-p
     erlang-at-end-of-function-p)
   "*List of functions controlling the arrow aspect of `erlang-electric-gt'.
 The functions in this list are called, in order, whenever a `>'
@@ -466,14 +467,17 @@ To activate the workaround, place the following in your `~/.emacs' file:
 
 (defvar erlang-indent-level 4
   "*Indentation of Erlang calls/clauses within blocks.")
+(put 'erlang-indent-level 'safe-local-variable 'integerp)
 
 (defvar erlang-indent-guard 2
   "*Indentation of Erlang guards.")
+(put 'erlang-indent-guard 'safe-local-variable 'integerp)
 
 (defvar erlang-argument-indent 2
   "*Indentation of the first argument in a function call.
 When nil, indent to the column after the `(' of the
 function.")
+(put 'erlang-argument-indent 'safe-local-variable '(lambda (val) (or (null val) (integerp val))))
 
 (defvar erlang-tab-always-indent t
   "*Non-nil means TAB in Erlang mode should always re-indent the current line,
@@ -518,6 +522,32 @@ This is an elisp list of options. Each option can be either:
 - a dotted pair
 - a string
 Example: '(bin_opt_info (i . \"/path1/include\") (i . \"/path2/include\"))")
+
+(defvar erlang-compile-command-function-alist
+  '((".erl\\'" . inferior-erlang-compute-erl-compile-command)
+    (".xrl\\'" . inferior-erlang-compute-leex-compile-command)
+    (".yrl\\'" . inferior-erlang-compute-yecc-compile-command)
+    ("." . inferior-erlang-compute-erl-compile-command))
+  "*Alist of filename patterns vs corresponding compilation functions.
+Each element looks like (REGEXP . FUNCTION). Compiling a file whose name
+matches REGEXP specifies FUNCTION to use to compute the compilation
+command. The FUNCTION will be called with two arguments: module name and
+default compilation options, like output directory. The FUNCTION
+is expected to return a string.")
+
+(defvar erlang-leex-compile-opts '()
+  "*Options to pass to leex when compiling xrl files.
+This is an elisp list of options. Each option can be either:
+- an atom
+- a dotted pair
+- a string")
+
+(defvar erlang-yecc-compile-opts '()
+  "*Options to pass to yecc when compiling yrl files.
+This is an elisp list of options. Each option can be either:
+- an atom
+- a dotted pair
+- a string")
 
 (eval-and-compile
   (defvar erlang-regexp-modern-p
@@ -1195,7 +1225,7 @@ Lock syntax table.  The effect is that `apply' in the atom
       `( (char-after (1- (or ,pos (point)))))))
 
 ;; defvar some obsolete variables, which we still support for
-;; backwardscompatibility reasons.
+;; backwards compatibility reasons.
 (eval-when-compile
   (defvar comment-indent-hook)
   (defvar dabbrev-case-fold-search)
@@ -1481,7 +1511,23 @@ Other commands:
 				    erlang-font-lock-keywords-3 
 				    erlang-font-lock-keywords-4)
 	 nil nil ((?_ . "w")) erlang-beginning-of-clause
-	 (font-lock-mark-block-function . erlang-mark-clause))))
+	 (font-lock-mark-block-function . erlang-mark-clause)
+         (font-lock-syntactic-keywords
+          ;; A dollar sign right before the double quote that ends a
+          ;; string is not a character escape.
+          ;;
+          ;; And a "string" has with a double quote not escaped by a
+          ;; dollar sign, any number of non-backslash non-newline
+          ;; characters or escaped backslashes, a dollar sign
+          ;; (otherwise we wouldn't care) and a double quote.  This
+          ;; doesn't match multi-line strings, but this is probably
+          ;; the best we can get, since while font-locking we don't
+          ;; know whether matching started inside a string: limiting
+          ;; search to a single line keeps things sane.
+          . (("\\(?:^\\|[^$]\\)\"\\(?:[^\"\n]\\|\\\\\"\\)*\\(\\$\\)\"" 1 "w")
+             ;; And the dollar sign in $\" escapes two characters, not
+             ;; just one.
+             ("\\(\\$\\)\\\\\\\"" 1 "'"))))))
 
 
 
@@ -4026,6 +4072,16 @@ This function is designed to be a member of a criteria list."
       nil)))
 
 
+(defun erlang-stop-when-in-type-spec ()
+  "Return `stop' when in a type spec line.
+
+This function is designed to be a member of a criteria list."
+  (save-excursion
+    (beginning-of-line)
+    (when (save-match-data (looking-at "-\\(spec\\|type\\)"))
+      'stop)))
+
+
 (defun erlang-next-lines-empty-p ()
   "Return non-nil if next lines are empty.
 
@@ -5246,6 +5302,22 @@ unless the optional NO-DISPLAY is non-nil."
       (file-name-as-directory buffer-dir))))
 
 (defun inferior-erlang-compute-compile-command (module-name opts)
+  (let ((ccfn erlang-compile-command-function-alist)
+	(res (inferior-erlang-compute-erl-compile-command module-name opts))
+	ccfn-entry
+	done)
+    (if (not (null (buffer-file-name)))
+	(while (and (not done) (not (null ccfn)))
+	  (setq ccfn-entry (car ccfn))
+	  (setq ccfn (cdr ccfn))
+	  (if (string-match (car ccfn-entry) (buffer-file-name))
+	      (let ((c-fn (cdr ccfn-entry)))
+		(setq done t)
+		(if (not (null c-fn))
+		    (setq result (funcall c-fn module-name opts)))))))
+    result))
+
+(defun inferior-erlang-compute-erl-compile-command (module-name opts)
   (let* ((out-dir-opt (assoc 'outdir opts))
 	 (out-dir     (cdr out-dir-opt)))
     (if erlang-compile-use-outdir
@@ -5268,6 +5340,48 @@ unless the optional NO-DISPLAY is non-nil."
 	 module-name (inferior-erlang-format-comma-opts
 		      (remq out-dir-opt opts))
 	 tmpvar tmpvar tmpvar2)))))
+
+(defun inferior-erlang-compute-leex-compile-command (module-name opts)
+  (let ((file-name        (buffer-file-name))
+	(erl-compile-expr (inferior-erlang-remove-any-trailing-dot
+			   (inferior-erlang-compute-erl-compile-command
+			    module-name opts))))
+    (format (concat "f(LErr1__), f(LErr2__), "
+		    "case case leex:file(\"%s\", [%s]) of"
+		    " ok -> ok;"
+		    " {ok,_} -> ok;"
+		    " {ok,_,_} -> ok;"
+		    " LErr1__ -> LErr1__ "
+		    "end of"
+		    " ok -> %s;"
+		    " LErr2__ -> LErr2__ "
+		    "end.")
+	    file-name
+	    (inferior-erlang-format-comma-opts erlang-leex-compile-opts)
+	    erl-compile-expr)))
+
+(defun inferior-erlang-compute-yecc-compile-command (module-name opts)
+  (let ((file-name        (buffer-file-name))
+	(erl-compile-expr (inferior-erlang-remove-any-trailing-dot
+			   (inferior-erlang-compute-erl-compile-command
+			    module-name opts))))
+    (format (concat "f(YErr1__), f(YErr2__), "
+		    "case case yecc:file(\"%s\", [%s]) of"
+		    " {ok,_} -> ok;"
+		    " {ok,_,_} -> ok;"
+		    " YErr1__ -> YErr1__ "
+		    "end of"
+		    " ok -> %s;"
+		    " YErr2__ -> YErr2__ "
+		    "end.")
+	    file-name
+	    (inferior-erlang-format-comma-opts erlang-yecc-compile-opts)
+	    erl-compile-expr)))
+
+(defun inferior-erlang-remove-any-trailing-dot (str)
+  (if (string= (substring str -1) ".")
+      (substring str 0 (1- (length str)))
+    str))
 
 (defun inferior-erlang-format-comma-opts (opts)
   (if (null opts)

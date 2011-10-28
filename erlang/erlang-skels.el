@@ -235,9 +235,6 @@ Please see the function `tempo-define-template'.")
   '(o (erlang-skel-separator)
       (erlang-skel-include erlang-skel-author-comment)
       (erlang-skel-include erlang-skel-copyright-comment)
-      "%%% @doc" n
-      "%%%" p n
-      "%%% @end" n
       (erlang-skel-include erlang-skel-created-comment)
       (erlang-skel-separator)
       (erlang-skel-include erlang-skel-small-header) )
@@ -287,7 +284,7 @@ Please see the function `tempo-define-template'.")
     "{ok, Pid} ->" n>
     "{ok, Pid};" n>
     "Error ->" n>
-    "Error" n>>
+    "Error" n>
     "end." n>
     n>
     (erlang-skel-separator-start 2)
@@ -442,7 +439,9 @@ Please see the function `tempo-define-template'.")
     "terminate/2, code_change/3])." n n
 
     "%% Types" n
-    "-type timeout() :: non_neg_integer() | infinity."
+    "-type timeout() :: non_neg_integer() | infinity." n
+    "-type reply() :: term()." n
+    "-type reason() :: normal | shutdown | term()." n
 
     "-record(state, {})." n n
 
@@ -452,7 +451,7 @@ Please see the function `tempo-define-template'.")
     (erlang-skel-separator-start 2)
     "%% @doc Starts the server" n
     (erlang-skel-separator-end 2)
-    "-spec start_link() -> {ok, Pid :: pid()} | ignore | {error, Error :: term()}" n
+    "-spec start_link() -> {ok, Pid :: pid()} | ignore | {error, Error :: term()}." n
     "start_link() ->" n>
     "gen_server:start_link({local, ?MODULE}, ?MODULE, [], [])." n
     n
@@ -464,74 +463,66 @@ Please see the function `tempo-define-template'.")
     "%% @private" n
     "%% @doc Initializes the server" n
     (erlang-skel-separator-end 2)
-    "-spec init(Args) -> {ok, State :: #state{}} | " n
-    "{ok, State :: #state{}, Timeout :: timeout()} |" n>
-    "{ok, State :: #state{}, hibernate} |" n>
-    "ignore | {stop, Reason}." n>
+    "-spec init(Args :: []) -> {ok, State :: #state{}} | " n>
+    "{ok, State :: #state{}, timeout() | hibernate} |" n>
+    "ignore | {stop, reason()}." n>
     "init([]) ->" n>
     "{ok, #state{}}." n
     n
     (erlang-skel-separator-start 2)
     "%% @private" n
-    "%% @doc" n
-    "%% Handling call messages" n
-    "%%" n
-    "%% @spec handle_call(Request, From, State) ->" n
-    "%%                                   {reply, Reply, State} |" n
-    "%%                                   {reply, Reply, State, Timeout} |" n
-    "%%                                   {noreply, State} |" n
-    "%%                                   {noreply, State, Timeout} |" n
-    "%%                                   {stop, Reason, Reply, State} |" n
-    "%%                                   {stop, Reason, State}" n
+    "%% @doc Handling call messages" n
     (erlang-skel-separator-end 2)
+    "-spec handle_call(Request :: term(), From :: term(), State :: #state{} ) ->" n>
+    "{reply, reply(), #state{}} |" n>
+    "{reply, reply(), #state{}, timeout() | hibernate} |" n>
+    "{noreply, #state{}} |" n>
+    "{noreply, #state{}, timeout() | hibernate} |" n>
+    "{stop, reason(), reply(), #state{}} |" n>
+    "{stop, reason(), #state{}}." n>
     "handle_call(_Request, _From, State) ->" n>
     "Reply = ok," n>
     "{reply, Reply, State}." n
     n
     (erlang-skel-separator-start 2)
     "%% @private" n
-    "%% @doc" n
-    "%% Handling cast messages" n
-    "%%" n
-    "%% @spec handle_cast(Msg, State) -> {noreply, State} |" n
-    "%%                                  {noreply, State, Timeout} |" n
-    "%%                                  {stop, Reason, State}" n
+    "%% @doc Handling cast messages" n
     (erlang-skel-separator-end 2)
+    "-spec handle_cast(Msg :: term(), State :: #state{}) ->" n> 
+    "{noreply, #state{}} |" n>
+    "{noreply, #state{}, timeout() | hibernate} |" n>
+    "{stop, reason(), #state{}}." n
     "handle_cast(_Msg, State) ->" n>
     "{noreply, State}." n
     n
     (erlang-skel-separator-start 2)
     "%% @private" n
-    "%% @doc" n
-    "%% Handling all non call/cast messages" n
-    "%%" n
-    "%% @spec handle_info(Info, State) -> {noreply, State} |" n
-    "%%                                   {noreply, State, Timeout} |" n
-    "%%                                   {stop, Reason, State}" n
+    "%% @doc Handling all non call/cast messages" n
     (erlang-skel-separator-end 2)
+    "-spec handle_info(Info :: term(), State :: #state{}) ->" n>
+    "{noreply, #state{}} |" n>
+    "{noreply, #state{}, timeout() | hibernate} |" n>
+    "{stop, reason(), #state{}}." n
     "handle_info(_Info, State) ->" n>
     "{noreply, State}." n
     n
     (erlang-skel-separator-start 2)
     "%% @private" n
-    "%% @doc" n
-    "%% This function is called by a gen_server when it is about to" n
-    "%% terminate. It should be the opposite of Module:init/1 and do any" n
-    "%% necessary cleaning up. When it returns, the gen_server terminates" n
-    "%% with Reason. The return value is ignored." n
-    "%%" n
-    "%% @spec terminate(Reason, State) -> void()" n
+    "%% @doc This function is called by a gen_server when it is about to" n
+    "%% terminate. " n
     (erlang-skel-separator-end 2)
+    "-spec terminate(Reason :: reason(), State :: #state{}) -> none()." n
     "terminate(_Reason, _State) ->" n>
     "ok." n
     n
     (erlang-skel-separator-start 2)
     "%% @private" n
-    "%% @doc" n
-    "%% Convert process state when code is changed" n
-    "%%" n
-    "%% @spec code_change(OldVsn, State, Extra) -> {ok, NewState}" n
+    "%% @doc Convert process state when code is changed" n
     (erlang-skel-separator-end 2)
+    "-spec code_change(OldVsn :: {down,term()} | term()," n>
+    "State :: #state{}," n>
+    "Extra :: term()) ->" n>
+    "{ok, NewState :: #state{}}." n>
     "code_change(_OldVsn, State, _Extra) ->" n>
     "{ok, State}." n
     n
