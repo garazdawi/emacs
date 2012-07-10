@@ -1,6 +1,8 @@
 ; Add ~/.emacs.d to load path.
 (setq load-path (cons "~/.emacs.d" load-path))
 
+(load-file "/usr/share/emacs/23.3/lisp/net/tramp.elc") 
+
 ;; To make font loading faster.
 (modify-frame-parameters nil '((wait-for-wm . nil)))
 
@@ -88,6 +90,26 @@
 (require 'auto-complete)
 (global-auto-complete-mode t)
 
+(autoload 'django-html-mumamo-mode "~/.emacs.d/nxhtml/autostart.el")
+(setq auto-mode-alist
+      (append '(("\\.html?$" . django-html-mumamo-mode)) auto-mode-alist))
+(setq mumamo-background-colors nil) 
+(add-to-list 'auto-mode-alist '("\\.html$" . django-html-mumamo-mode))
+
+;; Kill all buffers
+(defun kill-other-buffers ()
+    "Kill all other buffers."
+    (interactive)
+    (mapc 'kill-buffer 
+          (delq (current-buffer) 
+                (remove-if-not 'buffer-file-name (buffer-list)))))
+
+(setq load-path (cons "~/.emacs.d/markdown-mode" load-path))
+(autoload 'markdown-mode "markdown-mode.el"
+   "Major mode for editing Markdown files" t)
+(setq auto-mode-alist
+   (cons '("\\.md" . markdown-mode) auto-mode-alist))
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -96,7 +118,7 @@
  '(ac-auto-start 4)
  '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  '(cua-mode t nil (cua-base))
- '(safe-local-variable-values (quote ((erlang-indent-level . 4) (erlang-indent-level . 2)))))
+ '(safe-local-variable-values (quote ((eval add-hook (quote write-file-hooks) (quote time-stamp)) (erlang-indent-level . 4) (erlang-indent-level . 2)))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.

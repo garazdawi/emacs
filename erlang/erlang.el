@@ -1478,7 +1478,7 @@ Other commands:
 	      table)))
   (set (make-local-variable 'font-lock-syntax-table)
        erlang-font-lock-syntax-table)
-  (set (make-local-variable 'font-lock-beginning-of-syntax-function)
+  (set (make-local-variable 'syntax-begin-function)
        'erlang-beginning-of-clause)
   (make-local-variable 'font-lock-keywords)
   (let ((level (cond ((boundp 'font-lock-maximum-decoration)
