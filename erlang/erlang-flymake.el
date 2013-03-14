@@ -61,7 +61,7 @@ check on newline and when there are no changes)."
 
 (defun erlang-flymake-get-include-dirs ()
   (list (concat (erlang-flymake-get-app-dir) "include")
-        (concat (erlang-flymake-get-app-dir) "src")))
+        (concat (erlang-flymake-get-app-dir) "deps")))
 
 (defun erlang-flymake-get-app-dir ()
   (let ((src-path (file-name-directory (buffer-file-name))))
@@ -74,7 +74,7 @@ check on newline and when there are no changes)."
              'flymake-create-temp-with-folder-structure)))
          (code-dir-opts
           (erlang-flymake-flatten
-           (mapcar (lambda (dir) (list "-pz" dir))
+           (mapcar (lambda (dir) (list "-pa" dir))
                    (funcall erlang-flymake-get-code-path-dirs-function))))
          (inc-dir-opts
           (erlang-flymake-flatten

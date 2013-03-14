@@ -1,10 +1,11 @@
 ; Add ~/.emacs.d to load path.
 (setq load-path (cons "~/.emacs.d" load-path))
 
-(load-file "/usr/share/emacs/23.3/lisp/net/tramp.elc") 
+;(load-file "/usr/share/emacs/23.3/lisp/net/tramp.elc") 
 
 ;; To make font loading faster.
 (modify-frame-parameters nil '((wait-for-wm . nil)))
+;;(add-to-list 'default-frame-alist '(font . "Source Sans Pro"))
 
 (hl-line-mode t)
 
@@ -28,6 +29,14 @@
   (hs-minor-mode 1))
 
 (require 'erlang-flymake)
+
+(defun my-erlang-flymake-get-include-dirs ()
+  (list (concat (erlang-flymake-get-app-dir) "include")
+        "/ldisk/lukas/eclipse/comte2/comte/include"
+        "/ldisk/lukas/otp/lib/kernel/src/"
+        "/ldisk/lukas/otp/lib/kernel/include/"))
+(setq erlang-flymake-get-include-dirs-function 
+      'my-erlang-flymake-get-include-dirs)
 
 (setq distel-tags-compliant nil)
 
@@ -85,6 +94,15 @@
 (transient-mark-mode 1) ;; No region when it is not highlighted
 (setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
 
+(setq path-to-ctags "/usr/bin/X11/ctags") ;; <- your ctags path here
+
+(defun create-tags (dir-name)
+  "Create tags file."
+  (interactive "DDirectory: ")
+  (shell-command
+   (format "%s -f %s/TAGS -e -R %s" path-to-ctags dir-name (directory-file-name dir-name)))
+  )
+
 ;; auto-complete stuff
 (setq load-path (cons "~/.emacs.d/auto-complete" load-path))
 (require 'auto-complete)
@@ -109,6 +127,7 @@
    "Major mode for editing Markdown files" t)
 (setq auto-mode-alist
    (cons '("\\.md" . markdown-mode) auto-mode-alist))
+(setq show-trailing-whitespace 't)
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
@@ -126,3 +145,4 @@
   ;; If there is more than one, they won't work right.
  '(font-lock-constant-face ((t (:foreground "#73d216"))))
  '(font-lock-type-face ((t (:foreground "YellowGreen")))))
+(put 'erase-buffer 'disabled nil)

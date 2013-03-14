@@ -2,7 +2,7 @@
 %%
 %% %CopyrightBegin%
 %%
-%% Copyright Ericsson AB 2009-2010. All Rights Reserved.
+%% Copyright Ericsson AB 2009-2012. All Rights Reserved.
 %%
 %% The contents of this file are subject to the Erlang Public License,
 %% Version 1.1, (the "License"); you may not use this file except in
@@ -214,6 +214,11 @@ highlighting(X)			  % Function definitions should be highlighted
     "string\$", atom,   				% workaround for bug above
 
     "char $in string", atom, 
+
+    'atom$', atom,  'atom$', atom,
+    'atom\$', atom,
+
+    'char $in atom', atom,
 
     $[, ${, $\\, atom,
     ?MACRO_1,
@@ -657,3 +662,41 @@ indent_comprehensions() ->
 foo() ->
     [#foo{
 	foo = foo}].
+
+%% Record indentation
+some_function_with_a_very_long_name() ->
+    #'a-long-record-name-like-it-sometimes-is-with-asn.1-records'{
+       field1=a,
+       field2=b},
+    case dummy_function_with_a_very_very_long_name(x) of
+	#'a-long-record-name-like-it-sometimes-is-with-asn.1-records'{
+	   field1=a,
+	   field2=b} ->
+	    ok;
+	Var = #'a-long-record-name-like-it-sometimes-is-with-asn.1-records'{
+		 field1=a,
+		 field2=b} ->
+	    Var#'a-long-record-name-like-it-sometimes-is-with-asn.1-records'{
+	      field1=a,
+	      field2=b};
+	#xyz{
+	   a=1,
+	   b=2} ->
+	    ok
+    end.
+
+another_function_with_a_very_very_long_name() ->
+    #rec{
+       field1=1,
+       field2=1}.
+
+some_function_name_xyz(xyzzy, #some_record{
+				 field1=Field1,
+				 field2=Field2}) ->
+    SomeVariable = f(#'Some-long-record-name'{
+			field_a = 1,
+			'inter-xyz-parameters' =
+			    #'Some-other-very-long-record-name'{
+			       field2 = Field1,
+			       field2 = Field2}}),
+    {ok, SomeVariable}.

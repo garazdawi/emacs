@@ -283,7 +283,7 @@
 (global-set-key (kbd "M-u") 'delete-char)
 
 ; Delete previous/next word.
-(global-set-key (kbd "M-.") 'backward-kill-word)
+;(global-set-key (kbd "M-.") 'backward-kill-word)
 (global-set-key (kbd "M-p") 'kill-word)
 
 ; Copy Cut Paste, Paste previous
@@ -305,7 +305,8 @@
 ;;; Textual Transformation
 
 (global-set-key (kbd "M-S-SPC") 'mark-paragraph)
-(global-set-key (kbd "M-,") 'shrink-whitespaces)
+;(global-set-key (kbd "M-,") 'shrink-whitespaces)
+(global-set-key (kbd "M-,") 'pop-tag-mark)
 (global-set-key (kbd "M--") 'comment-dwim)
 (global-set-key (kbd "M-z") 'toggle-letter-case)
 

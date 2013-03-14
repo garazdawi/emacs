@@ -1,7 +1,13 @@
-;; erlang.el --- Major modes for editing and running Erlang
+;;; erlang.el --- Major modes for editing and running Erlang
+
+;; Copyright (C) 2004  Free Software Foundation, Inc.
+;; Author:   Anders Lindgren
+;; Keywords: erlang, languages, processes
+;; Date:     2011-12-11
+
 ;; %CopyrightBegin%
 ;;
-;; Copyright Ericsson AB 1996-2011. All Rights Reserved.
+;; Copyright Ericsson AB 1996-2012. All Rights Reserved.
 ;;
 ;; The contents of this file are subject to the Erlang Public License,
 ;; Version 1.1, (the "License"); you may not use this file except in
@@ -15,10 +21,7 @@
 ;; under the License.
 ;;
 ;; %CopyrightEnd%
-;; 
-;; Copyright (C) 2004  Free Software Foundation, Inc.
-;; Author:   Anders Lindgren
-;; Keywords: erlang, languages, processes
+;;
 
 ;; Lars Thorsén's modifications of 2000-06-07 included.
 ;; The original version of this package was written by Robert Virding.
@@ -483,10 +486,6 @@ function.")
   "*Non-nil means TAB in Erlang mode should always re-indent the current line,
 regardless of where in the line point is when the TAB command is used.")
 
-(defvar erlang-error-regexp-alist
-  '(("^\\([^:( \t\n]+\\)[:(][ \t]*\\([0-9]+\\)[:) \t]" . (1 2)))
-  "*Patterns for matching Erlang errors.")
-
 (defvar erlang-man-inhibit (eq system-type 'windows-nt)
   "Inhibit the creation of the Erlang Manual Pages menu.
 
@@ -724,9 +723,6 @@ resulting regexp is surrounded by \\_< and \\_>."
 (eval-and-compile
   (defvar erlang-int-bifs
     '("abs"
-      "adler32"
-      "adler32_combine"
-      "alive"
       "apply"
       "atom_to_binary"
       "atom_to_list"
@@ -734,19 +730,20 @@ resulting regexp is surrounded by \\_< and \\_>."
       "binary_to_existing_atom"
       "binary_to_list"
       "binary_to_term"
+      "binary_part"
       "bit_size"
+      "bitsize"
       "bitstring_to_list"
       "byte_size"
+      "check_old_code"
       "check_process_code"
-      "contact_binary"
-      "crc32"
-      "crc32_combine"
       "date"
-      "decode_packet"
       "delete_module"
+      "demonitor"
       "disconnect_node"
       "element"
       "erase"
+      "error"
       "exit"
       "float"
       "float_to_list"
@@ -757,7 +754,6 @@ resulting regexp is surrounded by \\_< and \\_>."
       "halt"
       "hd"
       "integer_to_list"
-      "internal_bif"
       "iolist_size"
       "iolist_to_binary"
       "is_alive"
@@ -788,13 +784,13 @@ resulting regexp is surrounded by \\_< and \\_>."
       "list_to_tuple"
       "load_module"
       "make_ref"
+      "max"
+      "min"
       "module_loaded"
+      "monitor"
       "monitor_node"
       "node"
-      "node_link"
-      "node_unlink"
       "nodes"
-      "notalive"
       "now"
       "open_port"
       "pid_to_list"
@@ -838,48 +834,128 @@ resulting regexp is surrounded by \\_< and \\_>."
 
 (eval-and-compile
   (defvar erlang-ext-bifs
-    '("append_element"
+    '("'!'"
+      "'*'"
+      "'+'"
+      "'++'"
+      "'-'"
+      "\\\'--\\\'"
+      "'/'"
+      "'/='"
+      "'<'"
+      "'=/='"
+      "'=:='"
+      "'=<'"
+      "'=='"
+      "'>'"
+      "'>='"
+      "adler32"
+      "adler32_combine"
+      "alloc_info"
+      "alloc_sizes"
+      "'and'"
+      "append"
+      "append_element"
+      "await_proc_exit"
+      "await_sched_wall_time_modifications"
+      "'band'"
+      "bitstr_to_list"
+      "'bnot'"
+      "'bor'"
+      "'bsl'"
+      "'bsr'"
       "bump_reductions"
+      "'bxor'"
+      "call_on_load_function"
       "cancel_timer"
-      "demonitor"
+      "crasher"
+      "crc32"
+      "crc32_combine"
+      "decode_packet"
+      "delay_trap"
+      "delete_element"
+      "dexit"
+      "dgroup_leader"
       "display"
+      "display_nl"
+      "display_string"
+      "dist_exit"
+      "'div'"
+      "dlink"
+      "dmonitor_node"
+      "dmonitor_p"
+      "dsend"
+      "dt_append_vm_tag_data"
+      "dt_get_tag"
+      "dt_get_tag_data"
+      "dt_prepend_vm_tag_data"
+      "dt_put_tag"
+      "dt_restore_tag"
+      "dt_spread_tag"
+      "dunlink"
+      "external_size"
+      "finish_after_on_load"
+      "finish_loading"
+      "flush_monitor_message"
+      "format_cpu_topology"
       "fun_info"
       "fun_to_list"
       "function_exported"
+      "garbage_collect_message_area"
+      "gather_sched_wall_time_result"
       "get_cookie"
+      "get_module_info"
       "get_stacktrace"
       "hash"
-      "integer_to_list"
+      "hibernate"
+      "insert_element"
       "is_builtin"
-      "list_to_integer"
+      "list_to_bitstr"
+      "load_nif"
       "loaded"
       "localtime"
       "localtime_to_universaltime"
+      "make_fun"
       "make_tuple"
-      "max"
+      "match_spec_test"
       "md5"
       "md5_final"
       "md5_init"
       "md5_update"
       "memory"
-      "min"
-      "monitor"
+      "module_info"
       "monitor_node"
+      "nif_error"
+      "'not'"
+      "'or'"
       "phash"
       "phash2"
       "port_call"
+      "port_get_data"
       "port_info"
+      "port_set_data"
       "port_to_list"
       "ports"
+      "posixtime_to_universaltime"
+      "prepare_loading"
       "process_display"
+      "raise"
       "read_timer"
       "ref_to_list"
+      "'rem'"
       "resume_process"
       "send"
       "send_after"
       "send_nosuspend"
+      "seq_trace"
+      "seq_trace_info"
+      "seq_trace_print"
       "set_cookie"
+      "set_cpu_topology"
+      "setnode"
+      "spawn_opt"
       "start_timer"
+      "subtract"
       "suspend_process"
       "system_flag"
       "system_info"
@@ -891,6 +967,8 @@ resulting regexp is surrounded by \\_< and \\_>."
       "trace_pattern"
       "universaltime"
       "universaltime_to_localtime"
+      "universaltime_to_posixtime"
+      "'xor'"
       "yield")
     "Erlang built-in functions (BIFs) that needs erlang: prefix"))
 
@@ -997,6 +1075,22 @@ behaviour.")
    (list (concat "^" erlang-atom-regexp "\\s-*(")
 	 1 'font-lock-function-name-face t))
   "Font lock keyword highlighting a function header.")
+
+(defface erlang-font-lock-exported-function-name-face
+  '((default (:inherit font-lock-function-name-face)))
+  "Face used for highlighting exported functions.")
+
+(defvar erlang-font-lock-exported-function-name-face
+  'erlang-font-lock-exported-function-name-face)
+
+(defvar erlang-inhibit-exported-function-name-face nil
+  "Inhibit separate face for exported functions")
+
+(defvar erlang-font-lock-keywords-exported-function-header
+  (list
+   (list #'erlang-match-next-exported-function
+	 1 'erlang-font-lock-exported-function-name-face t))
+  "Font lock keyword highlighting an exported function header.")
 
 (defvar erlang-font-lock-keywords-int-bifs
   (list
@@ -1133,7 +1227,8 @@ There exists three levels of Font Lock keywords for Erlang:
   `erlang-font-lock-keywords-1' - Function headers and reserved keywords.
   `erlang-font-lock-keywords-2' - Bifs, guards and `single quotes'.
   `erlang-font-lock-keywords-3' - Variables, macros and records.
-  `erlang-font-lock-keywords-4' - Function names, Funs, LCs (not Atoms)
+  `erlang-font-lock-keywords-4' - Exported functions, Function names,
+                                  Funs, LCs (not Atoms).
 
 To use a specific level, please set the variable
 `font-lock-maximum-decoration' to the appropriate level.  Note that the
@@ -1175,6 +1270,7 @@ Example:
 
 (defvar erlang-font-lock-keywords-4
   (append erlang-font-lock-keywords-3
+          erlang-font-lock-keywords-exported-function-header
           erlang-font-lock-keywords-int-function-calls
 	  erlang-font-lock-keywords-ext-function-calls
 	  erlang-font-lock-keywords-fun-n
@@ -1327,7 +1423,6 @@ Other commands:
   (erlang-menu-init)
   (erlang-mode-variables)
   (erlang-check-module-name-init)
-  (erlang-add-compilation-alist erlang-error-regexp-alist)
   (erlang-man-init)
   (erlang-tags-init)
   (erlang-font-lock-init)
@@ -1443,31 +1538,6 @@ Other commands:
   (set (make-local-variable 'outline-level) (lambda () 1))
   (set (make-local-variable 'add-log-current-defun-function)
        'erlang-current-defun))
-
-
-;; Compilation.
-;;
-;; The following code is compatible with the standard package `compilation',
-;; making it possible to go to errors using `erlang-next-error' (or just
-;; `next-error' in Emacs 21).
-;;
-;; The normal `compile' command works of course.  For best result, please
-;; execute `make' with the `-w' flag.
-;;
-;; Please see the variables named `compiling-..' above.
-
-(defun erlang-add-compilation-alist (alist)
-  (require 'compile)
-  (cond ((boundp 'compilation-error-regexp-alist) ; Emacs 19
-	 (while alist
-	   (or (assoc (car (car alist)) compilation-error-regexp-alist)
-	       (setq compilation-error-regexp-alist
-		     (cons (car alist) compilation-error-regexp-alist)))
-	   (setq alist (cdr alist))))
-	((boundp 'compilation-error-regexp)
-	 ;; Emacs 18,  Only one regexp is allowed.
-	 (funcall (symbol-function 'set)
-		  'compilation-error-regexp (car (car alist))))))
 
 (defun erlang-font-lock-init ()
   "Initialize Font Lock for Erlang mode."
@@ -1478,7 +1548,7 @@ Other commands:
 	      table)))
   (set (make-local-variable 'font-lock-syntax-table)
        erlang-font-lock-syntax-table)
-  (set (make-local-variable 'syntax-begin-function)
+  (set (make-local-variable 'font-lock-beginning-of-syntax-function)
        'erlang-beginning-of-clause)
   (make-local-variable 'font-lock-keywords)
   (let ((level (cond ((boundp 'font-lock-maximum-decoration)
@@ -1516,7 +1586,7 @@ Other commands:
           ;; A dollar sign right before the double quote that ends a
           ;; string is not a character escape.
           ;;
-          ;; And a "string" has with a double quote not escaped by a
+          ;; And a "string" consists of a double quote not escaped by a
           ;; dollar sign, any number of non-backslash non-newline
           ;; characters or escaped backslashes, a dollar sign
           ;; (otherwise we wouldn't care) and a double quote.  This
@@ -1525,6 +1595,8 @@ Other commands:
           ;; know whether matching started inside a string: limiting
           ;; search to a single line keeps things sane.
           . (("\\(?:^\\|[^$]\\)\"\\(?:[^\"\n]\\|\\\\\"\\)*\\(\\$\\)\"" 1 "w")
+	     ;; Likewise for atoms
+	     ("\\(?:^\\|[^$]\\)'\\(?:[^'\n]\\|\\\\'\\)*\\(\\$\\)'" 1 "w")
              ;; And the dollar sign in $\" escapes two characters, not
              ;; just one.
              ("\\(\\$\\)\\\\\\\"" 1 "'"))))))
@@ -2986,18 +3058,52 @@ This assumes that the preceding expression is either simple
     (forward-sexp (- arg))
     (let ((col (current-column)))
       (skip-chars-backward " \t")
-      ;; Needed to match the colon in "'foo':'bar'".
-      (if (not (memq (preceding-char) '(?# ?:)))
-          col
-        ;; Special hack to handle: (note line break)
-        ;; [#myrecord{
-        ;;  foo = foo}]
-        (or
-         (ignore-errors
-           (backward-char 1)
-           (forward-sexp -1)
-           (current-column))
-         col)))))
+      ;; Special hack to handle: (note line break)
+      ;; [#myrecord{
+      ;;  foo = foo}]
+      ;; where the call (forward-sexp -1) will fail when point is at the `#'.
+      (or
+       (ignore-errors
+	 ;; Needed to match the colon in "'foo':'bar'".
+	 (cond ((eq (preceding-char) ?:)
+		(backward-char 1)
+		(forward-sexp -1)
+		(current-column))
+	       ((eq  (preceding-char) ?#)
+		;; We may now be at:
+		;; - either a construction of a new record
+		;; - or update of a record, in which case we want
+		;;   the column of the expression to be updated.
+		;;
+		;; To see which of the two cases we are at, we first
+		;; move an expression backwards, check for keywords,
+		;; then immediately an expression forwards.  Moving
+		;; backwards skips past tokens like `,' or `->', but
+		;; when moving forwards again, we won't skip past such
+		;; tokens.  We use this: if, after having moved
+		;; forwards, we're back where we started, then it was
+		;; a record update.
+		;; The check for keywords is to detect cases like:
+		;;   case Something of #record_construction{...}
+		(backward-char 1)
+		(let ((record-start (point))
+		      (record-start-col (current-column)))
+		  (forward-sexp -1)
+		  (let ((preceding-expr-col (current-column))
+			;; white space definition according to erl_scan
+			(white-space "\000-\040\200-\240"))
+		    (if (erlang-at-keyword)
+			;; The (forward-sexp -1) call moved past a keyword
+			(1+ record-start-col)
+		      (forward-sexp 1)
+		      (skip-chars-forward white-space record-start)
+		      ;; Are we back where we started?  If so, it was an update.
+		      (if (= (point) record-start)
+			    preceding-expr-col
+			(goto-char record-start)
+			(1+ (current-column)))))))
+	       (t col)))
+       col))))
 
 (defun erlang-indent-parenthesis (stack-position) 
   (let ((previous (erlang-indent-find-preceding-expr)))
@@ -3652,6 +3758,38 @@ In the future the list may contain more elements."
 	    (substring str 1 -1)
 	  str)
       (store-match-data md))))
+
+(defun erlang-match-next-exported-function (max)
+  "Returns non-nil if there is an exported function in the current
+buffer between point and MAX."
+  (block nil
+    (while (and (not erlang-inhibit-exported-function-name-face)
+                (erlang-match-next-function max))
+      (when (erlang-last-match-exported-p)
+        (return (match-data))))))
+
+(defun erlang-match-next-function (max)
+  "Searches forward in current buffer for the next erlang function,
+bounded by position MAX."
+  (re-search-forward erlang-defun-prompt-regexp max 'move-point))
+
+(defun erlang-last-match-exported-p ()
+  "Returns non-nil if match-data describes the name and arity of an
+exported function."
+  (save-excursion
+    (save-match-data
+      (goto-char (match-beginning 1))
+      (erlang-function-exported-p
+       (erlang-remove-quotes (erlang-get-function-name))
+       (erlang-get-function-arity)))))
+
+(defun erlang-function-exported-p (name arity)
+  "Returns non-nil if function of name and arity is exported in current buffer."
+  (save-excursion
+    (let* ((old-match-data (match-data))
+           (exports        (erlang-get-export)))
+      (store-match-data old-match-data)
+      (member (cons name arity) exports))))
 
 
 ;;; Check module name
@@ -4860,7 +4998,6 @@ The following special commands are available:
     (set (make-local-variable 'compilation-old-error-list) nil))
   ;; Needed when compiling directly from the Erlang shell.
   (setq compilation-last-buffer (current-buffer))
-  (erlang-add-compilation-alist erlang-error-regexp-alist)
   (setq comint-prompt-regexp "^[^>=]*> *")
   (setq comint-eol-on-send t)
   (setq comint-input-ignoredups t)
