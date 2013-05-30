@@ -203,7 +203,7 @@
 (global-unset-key (kbd "C-r")) ; isearch-backward
 (global-unset-key (kbd "C-s")) ; isearch-forward
 (global-unset-key (kbd "C-t")) ; transpose-chars
-(global-unset-key (kbd "C-u")) ; universal-argument
+;(global-unset-key (kbd "C-u")) ; universal-argument
 (global-unset-key (kbd "C-v")) ; scroll-up
 (global-unset-key (kbd "C-w")) ; kill-region
 ;(global-unset-key (kbd "C-x")) ; (prefix)
@@ -305,8 +305,9 @@
 ;;; Textual Transformation
 
 (global-set-key (kbd "M-S-SPC") 'mark-paragraph)
+(global-set-key (kbd "M-.") 'find-tag)
 (global-set-key (kbd "M-,") 'pop-tag-mark)
-(global-set-key (kbd "M--") 'tags-loop-continue)
+(global-set-key (kbd "M--") (read-kbd-macro "C-u M-."))
 (global-set-key (kbd "M-z") 'toggle-letter-case)
 
 ; keyword completion, because Alt+Tab is used by OS
