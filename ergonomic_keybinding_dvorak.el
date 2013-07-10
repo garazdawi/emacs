@@ -303,6 +303,7 @@
 (global-set-key (kbd "M-I") 'kill-line-backward)
 
 ;;; Textual Transformation
+(defun find-next-tag() "" (find-tag (0)))
 
 (global-set-key (kbd "M-S-SPC") 'mark-paragraph)
 (global-set-key (kbd "M-.") 'find-tag)
