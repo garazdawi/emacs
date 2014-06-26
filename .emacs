@@ -9,6 +9,9 @@
 
 (hl-line-mode t)
 
+;; fix broken ubuntu emacs
+(require 'iso-transl)
+
 ;; Erlang Mode
 (setq load-path (cons "~/.emacs.d/erlang" load-path))
 (require 'erlang-start)
@@ -32,7 +35,6 @@
 
 (defun my-erlang-flymake-get-include-dirs ()
   (list (concat (erlang-flymake-get-app-dir) "include")
-        "/ldisk/lukas/eclipse/comte2/comte/include"
         "/ldisk/lukas/otp/lib/kernel/src/"
         "/ldisk/lukas/otp/lib/kernel/include/"))
 (setq erlang-flymake-get-include-dirs-function 
@@ -85,7 +87,7 @@
 
 ; Redo mode
 (require 'redo+)
-  (global-set-key (kbd "C-Z") 'redo)
+(global-set-key (kbd "C-Z") 'redo)
 
 (setq vc-checkout-switches "-r.")
 
@@ -114,6 +116,13 @@
 (setq mumamo-background-colors nil) 
 (add-to-list 'auto-mode-alist '("\\.html$" . django-html-mumamo-mode))
 
+;; Workaround the annoying warnings:
+;;    Warning (mumamo-per-buffer-local-vars):
+;;    Already 'permanent-local t: buffer-file-name
+(eval-after-load "mumamo"
+  '(setq mumamo-per-buffer-local-vars
+	 (delq 'buffer-file-name mumamo-per-buffer-local-vars)))
+
 ;; Kill all buffers
 (defun kill-other-buffers ()
     "Kill all other buffers."
@@ -125,25 +134,24 @@
 (setq load-path (cons "~/.emacs.d/markdown-mode" load-path))
 (autoload 'markdown-mode "markdown-mode.el"
    "Major mode for editing Markdown files" t)
-(setq auto-mode-alist
-   (cons '("\\.md" . markdown-mode) auto-mode-alist))
-(setq show-trailing-whitespace 't)
-
+(setq auto-mode-alist (cons '("\\.md" . markdown-mode) auto-mode-alist))
+(require 'whitespace)
+(global-whitespace-mode t)
 
 (defun find-file-upwards (file-to-find)
   "Recursively searches each parent directory starting from the default-directory. looking for a file with name file-to-find.  Returns the path to it or nil if not found."
   (labels
       ((find-file-r (path)
                     (let* ((parent (file-name-directory path))
-                           (possible-file (concat parent file-to-find)))
-                      (cond
-                       ((file-exists-p possible-file) possible-file) ; Found
+                          (possible-file (concat parent file-to-find)))
+                     (cond
+                      ((file-exists-p possible-file) possible-file) ; Found
                        ;; The parent of ~ is nil and the parent of / is itself.
                        ;; Thus the terminating condition for not finding the file
                        ;; accounts for both.
-                       ((or (null parent) (equal parent (directory-file-name parent))) nil) ; Not found
-                       (t (find-file-r (directory-file-name parent))))))) ; Continue
-    (find-file-r default-directory)))
+                      ((or (null parent) (equal parent (directory-file-name parent))) nil) ; Not found
+                      (t (find-file-r (directory-file-name parent))))))) ; Continue
+   (find-file-r default-directory)))
 (defun reload-tags-file ()
   "Load a new version of the first TAGS file found"
   (interactive)
@@ -152,20 +160,25 @@
       (message "Loading tags file: %s" my-tags-file)
       (visit-tags-table my-tags-file))))
 
+(setq-default c-default-style "k&r"
+              c-basic-offset 4
+              tab-width 8
+              indent-tabs-mode nil)
+
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(ac-auto-start 4)
  '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  '(cua-mode t nil (cua-base))
- '(safe-local-variable-values (quote ((eval add-hook (quote write-file-hooks) (quote time-stamp)) (erlang-indent-level . 4) (erlang-indent-level . 2)))))
+ '(whitespace-style (quote (face trailing lines space-before-tab empty space-after-tab))))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(font-lock-constant-face ((t (:foreground "#73d216"))))
  '(font-lock-type-face ((t (:foreground "YellowGreen")))))
 (put 'erase-buffer 'disabled nil)

@@ -3087,7 +3087,7 @@ The main reasons for doing it this way is:
                (list 'font-lock-extend-region-functions (custom-quote font-lock-extend-region-functions))
                (list 'font-lock-comment-start-skip (custom-quote font-lock-comment-start-skip))
                (list 'font-lock-comment-end-skip (custom-quote font-lock-comment-end-skip))
-               (list 'font-lock-syntactic-keywords (custom-quote font-lock-syntactic-keywords))
+               (list 'syntax-propertize-function (custom-quote syntax-propertize-function))
 
                (list 'font-lock-keywords (custom-quote font-lock-keywords))
                ;;(list 'font-lock-keywords-alist (custom-quote font-lock-keywords-alist))
@@ -6118,7 +6118,7 @@ Save HOOK and the list of functions removed to
     font-lock-mode-major-mode
     font-lock-multiline
     font-lock-set-defaults
-    font-lock-syntactic-keywords
+    syntax-propertize-function
     font-lock-syntactically-fontified
     font-lock-syntax-table
     font-lock-unfontify-buffer-function
