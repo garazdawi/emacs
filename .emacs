@@ -165,6 +165,9 @@
               tab-width 8
               indent-tabs-mode nil)
 
+(add-hook 'erlang-mode-hook 'flyspell-prog-mode)
+(add-hook 'c-mode-common-hook 'flyspell-prog-mode)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -173,7 +176,7 @@
  '(ac-auto-start 4)
  '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  '(cua-mode t nil (cua-base))
- '(whitespace-style (quote (face trailing lines space-before-tab empty space-after-tab))))
+ '(whitespace-style (quote (face trailing lines empty))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
