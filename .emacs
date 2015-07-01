@@ -60,10 +60,6 @@
 ;; http://xahlee.org/emacs/ergonomic_emacs_keybinding.html
 (load-file "~/.emacs.d/ergonomic_keybinding_dvorak.el")
 
-; a package which enables text selection with the shift and arrow keys
-(load-library "pc-select")
-(pc-selection-mode)
-
 ;; Load my custom shortcuts
 (load-file "~/.emacs.d/my-shortcuts.el")
 
@@ -106,6 +102,7 @@
   )
 
 ;; auto-complete stuff
+(setq load-path (cons "~/.emacs.d/popup-el" load-path))
 (setq load-path (cons "~/.emacs.d/auto-complete" load-path))
 (require 'auto-complete)
 (global-auto-complete-mode t)
