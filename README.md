@@ -3,9 +3,9 @@ My Emacs settings
 
 To install:
 
-git clone https://github.com/garazdawi/emacs ~/.emacs.d
-(cd ~/.emacs.d && git checkout ubuntu)
-ln -s ~/.emacs.d/.emacs ~/.emacs
+    git clone https://github.com/garazdawi/emacs ~/.emacs.d
+    (cd ~/.emacs.d && git checkout ubuntu)
+    ln -s ~/.emacs.d/.emacs ~/.emacs
 
 Some important key-bindings that I use:
 
