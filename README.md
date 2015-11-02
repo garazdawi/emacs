@@ -21,6 +21,7 @@ Some important key-bindings that I use:
     C-=  - duplicate line
     C-<arrow up>   - move line up
     C-<arrow down> - move line down
+    C-<tab>        - focus next pane
     
     M-1  - reset pane split
     M-2  - split panes horizontally
