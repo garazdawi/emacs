@@ -1,11 +1,27 @@
+; Setup package for MELPA installs
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+(package-initialize) ;; You might already have this line
+
+; Setup use-package for easy MELPA installs
+(if (not (package-installed-p 'use-package))
+    (progn
+      (package-refresh-contents)
+      (package-install 'use-package)))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
 ; Add ~/.emacs.d to load path.
 (setq load-path (cons "~/.emacs.d" load-path))
 
-;(load-file "/usr/share/emacs/23.3/lisp/net/tramp.elc") 
-
 ;; To make font loading faster.
 (modify-frame-parameters nil '((wait-for-wm . nil)))
-;;(add-to-list 'default-frame-alist '(font . "Source Sans Pro"))
+(add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono"))
 
 (hl-line-mode t)
 
@@ -13,7 +29,7 @@
 (require 'iso-transl)
 
 ;; Erlang Mode
-(setq load-path (cons "~/.emacs.d/erlang" load-path))
+(use-package erlang)
 (require 'erlang-start)
 (setq auto-mode-alist (append auto-mode-alist
                               '(("\\.rel$" . erlang-mode)
@@ -48,6 +64,7 @@
 (require 'ido)
 (ido-mode t)
 
+(use-package highlight-parentheses)
 (require 'highlight-parentheses)
 (defun turn-on-highlight-parentheses-mode ()
 (highlight-parentheses-mode t))
@@ -68,6 +85,7 @@
 (setq erc-header-line-format "%s %a. %n on %t (%m,%l) %o")
 
 ;; Color Themes
+(use-package color-theme)
 (require 'color-theme)
 (require 'color-theme-tango-3)
 (eval-after-load "color-theme"
@@ -79,9 +97,8 @@
 ; Erlang is enabled in the erlang-mode-hook above.
 (add-hook 'emacs-lisp-mode-hook (lambda () (hs-minor-mode 1)))
 
-(load-file "~/.emacs.d/graphviz-dot-mode.el") 
-
 ; Redo mode
+(use-package redo+)
 (require 'redo+)
 (global-set-key (kbd "C-Z") 'redo)
 
@@ -92,33 +109,60 @@
 (transient-mark-mode 1) ;; No region when it is not highlighted
 (setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
 
-(setq path-to-ctags "/usr/bin/X11/ctags") ;; <- your ctags path here
-
-(defun create-tags (dir-name)
-  "Create tags file."
-  (interactive "DDirectory: ")
-  (shell-command
-   (format "%s -f %s/TAGS -e -R %s" path-to-ctags dir-name (directory-file-name dir-name)))
-  )
-
 ;; auto-complete stuff
-(setq load-path (cons "~/.emacs.d/popup-el" load-path))
-(setq load-path (cons "~/.emacs.d/auto-complete" load-path))
+(use-package popup)
+(use-package auto-complete)
 (require 'auto-complete)
 (global-auto-complete-mode t)
 
-(autoload 'django-html-mumamo-mode "~/.emacs.d/nxhtml/autostart.el")
-(setq auto-mode-alist
-      (append '(("\\.html?$" . django-html-mumamo-mode)) auto-mode-alist))
-(setq mumamo-background-colors nil) 
-(add-to-list 'auto-mode-alist '("\\.html$" . django-html-mumamo-mode))
+(use-package markdown-mode)
+(autoload 'markdown-mode "markdown-mode.el"
+   "Major mode for editing Markdown files" t)
+(setq auto-mode-alist (cons '("\\.md" . markdown-mode) auto-mode-alist))
+(require 'whitespace)
+(global-whitespace-mode t)
 
-;; Workaround the annoying warnings:
-;;    Warning (mumamo-per-buffer-local-vars):
-;;    Already 'permanent-local t: buffer-file-name
-(eval-after-load "mumamo"
-  '(setq mumamo-per-buffer-local-vars
-	 (delq 'buffer-file-name mumamo-per-buffer-local-vars)))
+(setq-default c-default-style "k&r"
+              c-basic-offset 4
+              tab-width 8
+              indent-tabs-mode nil)
+
+(add-hook 'erlang-mode-hook 'flyspell-prog-mode)
+(add-hook 'c-mode-common-hook 'flyspell-prog-mode)
+
+(use-package ggtags)
+(require 'ggtags)
+
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+              (ggtags-mode 1))))
+
+(use-package llvm-mode)
+(require 'llvm-mode)
+;; llvm coding standard
+(c-add-style "llvm.org"
+             '("gnu"
+	       (fill-column . 80)
+	       (c++-indent-level . 2)
+	       (c-basic-offset . 2)
+	       (indent-tabs-mode . nil)
+	       (c-offsets-alist . ((arglist-intro . ++)
+				   (innamespace . 0)
+				   (member-init-intro . ++)))))
+
+;; Files with "llvm" in their names will automatically be set to the
+;; llvm.org coding style.
+(add-hook 'c-mode-common-hook
+	  (function
+	   (lambda nil
+	     (if (string-match "llvm" buffer-file-name)
+		 (progn
+		   (c-set-style "llvm.org"))))))
+
+;;;
+;;; Custom emacs functions
+;;;
 
 ;; Kill all buffers
 (defun kill-other-buffers ()
@@ -128,13 +172,7 @@
           (delq (current-buffer) 
                 (remove-if-not 'buffer-file-name (buffer-list)))))
 
-(setq load-path (cons "~/.emacs.d/markdown-mode" load-path))
-(autoload 'markdown-mode "markdown-mode.el"
-   "Major mode for editing Markdown files" t)
-(setq auto-mode-alist (cons '("\\.md" . markdown-mode) auto-mode-alist))
-(require 'whitespace)
-(global-whitespace-mode t)
-
+;; Reload tags file
 (defun find-file-upwards (file-to-find)
   "Recursively searches each parent directory starting from the default-directory. looking for a file with name file-to-find.  Returns the path to it or nil if not found."
   (labels
@@ -157,13 +195,6 @@
       (message "Loading tags file: %s" my-tags-file)
       (visit-tags-table my-tags-file))))
 
-(setq-default c-default-style "k&r"
-              c-basic-offset 4
-              tab-width 8
-              indent-tabs-mode nil)
-
-(add-hook 'erlang-mode-hook 'flyspell-prog-mode)
-(add-hook 'c-mode-common-hook 'flyspell-prog-mode)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -173,6 +204,7 @@
  '(ac-auto-start 4)
  '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  '(cua-mode t nil (cua-base))
+ '(safe-local-variable-values (quote ((c-continued-statement-offset . 2))))
  '(whitespace-style (quote (face trailing lines empty))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
