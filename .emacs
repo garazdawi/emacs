@@ -137,6 +137,12 @@
           (lambda ()
             (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
               (ggtags-mode 1))))
+(defun my-ggtags-find-tag-dwim ()
+  "Find and move to current file first"
+  (ggtags-find-tag-dwim)
+  (ggtags-navigation-start-file))
+
+(global-set-key (kbd "M-.") 'my-ggtags-find-tag-dwim)
 
 (use-package llvm-mode)
 (require 'llvm-mode)
