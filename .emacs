@@ -201,6 +201,42 @@
       (message "Loading tags file: %s" my-tags-file)
       (visit-tags-table my-tags-file))))
 
+(defun gdb-beam-env (var)
+  "Get an environment variable value from something set in ~./.bashrc"
+  (shell-command-to-string (concat "/bin/bash -i -c 'echo -n $" var "' 2>/dev/null"))
+)
+
+(defun gdb-beam ()
+  "Start a debug beam emulator"
+  (interactive)
+  (let ((ERL_TOP (gdb-beam-env "ERL_TOP"))
+        (PATH (gdb-beam-env "PATH")))
+    (let ((EMU_ARGS (replace-regexp-in-string
+                     "\n" " "
+                     (shell-command-to-string
+                      (concat ERL_TOP "/bin/cerl -emu_args_exit"))))
+          (BINDIR (replace-regexp-in-string
+                   "\n\\'" ""
+                   (concat
+                    ERL_TOP "/bin/"
+                    (shell-command-to-string
+                     (concat ERL_TOP "/erts/autoconf/config.guess"))))
+                  ))
+      (progn
+        (gdb (concat "gdb -i=mi " BINDIR "/beam.debug.smp"))
+        (insert-string (concat "set args " EMU_ARGS))
+        (comint-send-input)
+        (insert-string (concat "source " ERL_TOP "/erts/etc/unix/etp-commands"))
+        (comint-send-input)
+        (insert-string (concat "set environment BINDIR=" BINDIR))
+        (comint-send-input)
+        (insert-string (concat "set environment PATH=" PATH ":" BINDIR))
+        (comint-send-input)
+        (insert-string "run")
+        )
+      )
+    )
+  )
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -210,6 +246,7 @@
  '(ac-auto-start 4)
  '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  '(cua-mode t nil (cua-base))
+ '(gdb-many-windows t)
  '(safe-local-variable-values (quote ((c-continued-statement-offset . 2))))
  '(whitespace-style (quote (face trailing lines empty))))
 (custom-set-faces
