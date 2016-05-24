@@ -142,7 +142,9 @@
   (ggtags-find-tag-dwim)
   (ggtags-navigation-start-file))
 
-(global-set-key (kbd "M-.") 'my-ggtags-find-tag-dwim)
+(add-hook 'ggtags-mode
+          (lambda ()
+            (local-set-key (kbd "M-.") 'my-ggtags-find-tag-dwim)))
 
 (use-package llvm-mode)
 (require 'llvm-mode)
