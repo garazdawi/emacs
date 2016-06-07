@@ -1,0 +1,42 @@
+EDITOR=emacs
+GIT_EDITOR=vim
+PATH=$PATH:~/git/otp/bin:
+
+test -s ~/.alias && . ~/.alias || true
+test -s ~/.bash_local && . ~/.~/.bash_local || true
+
+ERL_TOP=$HOME/git/otp
+EDEV_ROOT=$HOME/git/edev
+
+# User specific environment and startup programs
+
+export MAKEFLAGS=-j10
+export JAVA_ARGS="-Dlog4j.configuration=file://$HOME/config/log4j.properties"
+ulimit -c unlimited
+
+# Prompt
+source ~/.git-completion.sh
+PS1='--[\u@\h] \[\e[0;34m\]\W/\[\e[0;32m\]$(__git_ps1 " (%s)") $CC_VIEW\[\e[0;34m\]\[\e[0m\]--\n> '
+HTTP_PROXY=$http_proxy
+EQC_VIEWER=xdg-open
+LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
+LESS=' -R -iMX '
+
+PATH=$HOME/apps/bin:/var/tmp/llvm/install/Release/bin:$PATH
+
+export LC_CTYPE=sv_SE.utf8
+
+mkemutags () {
+
+    if [ "x$ERL_TOP" = "x" ]; then
+        print_error "\$ERL_TOP not set!"
+        return 1
+    fi
+
+    (cd $ERL_TOP/erts/ && find . -name '*.[hc]*' -print | gtags -f - )
+    (cd $ERL_TOP/lib/erl_interface && find . -name '*.[hc]*' -print | gtags -f - )
+    (cd $ERL_TOP/lib/ && find . -name '*.*rl' -print | xargs ctags -e )
+
+}
+
+export ERL_TOP PATH GIT_EDITOR EDITOR EDEV_ROOT HTTP_PROXY EQC_VIEWER LESSOPEN LESS
