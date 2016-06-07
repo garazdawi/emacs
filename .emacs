@@ -248,7 +248,6 @@
  '(ac-auto-start 4)
  '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  '(cua-mode t nil (cua-base))
- '(gdb-many-windows t)
  '(safe-local-variable-values (quote ((c-continued-statement-offset . 2))))
  '(whitespace-style (quote (face trailing lines empty))))
 (custom-set-faces
