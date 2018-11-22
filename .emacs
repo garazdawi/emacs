@@ -16,14 +16,13 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(load-theme 'adwaita t)
+
 ; Add ~/.emacs.d to load path.
-(setq load-path (cons "~/.emacs.d" load-path))
+;(setq load-path (cons "~/.emacs.d" load-path))
 
-;; To make font loading faster.
-(modify-frame-parameters nil '((wait-for-wm . nil)))
-(add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono"))
-
-(hl-line-mode t)
+(require 're-builder)
+(setq reb-re-syntax 'string)
 
 ;; fix broken ubuntu emacs
 (require 'iso-transl)
@@ -43,7 +42,7 @@
 (add-hook 'erlang-mode-hook 'my-erlang-hook-function)
 (defun my-erlang-hook-function ()
   (imenu-add-to-menubar "Functions")
-  (setq erlang-skel-mail-address "lukas@erlang-solutions.com")
+  (setq erlang-skel-mail-address "lukas.larsson@erlang-solutions.com")
   (setq user-full-name "Lukas Larsson")
   (hs-minor-mode 1))
 
@@ -83,15 +82,6 @@
 ;; Move mode line to top (into the header line actually)
 (setq erc-mode-line-format nil)
 (setq erc-header-line-format "%s %a. %n on %t (%m,%l) %o")
-
-;; Color Themes
-(use-package color-theme)
-(require 'color-theme)
-(require 'color-theme-tango-3)
-(eval-after-load "color-theme"
-  '(progn
-     (color-theme-initialize)
-     (color-theme-tango-3)))
 
 ;; Outlining
 ; Erlang is enabled in the erlang-mode-hook above.
@@ -159,14 +149,11 @@
 				   (innamespace . 0)
 				   (member-init-intro . ++)))))
 
-;; Files with "llvm" in their names will automatically be set to the
-;; llvm.org coding style.
-(add-hook 'c-mode-common-hook
-	  (function
-	   (lambda nil
-	     (if (string-match "llvm" buffer-file-name)
-		 (progn
-		   (c-set-style "llvm.org"))))))
+(use-package groovy-mode)
+(require 'groovy-mode)
+
+(use-package graphviz-dot-mode)
+(require 'graphviz-dot-mode)
 
 ;;;
 ;;; Custom emacs functions
@@ -240,21 +227,52 @@
     )
   )
 
+(defun erl-test-env ()
+  "Convert a otp_client_build env to export entries"
+  (interactive)
+  (progn
+    (goto-char (point-min))
+    (replace-regexp "^" "export ")
+    (goto-char (point-min))
+    (replace-regexp "$" "\"")
+    (goto-char (point-min))
+    (replace-string " = " "=\"")
+    )
+)
+
+(defun my-find-file-check-make-large-file-read-only-hook ()
+  "If a file is over a given size, make the buffer read only."
+  (when (> (buffer-size) (* 4024 1024))
+    (setq buffer-read-only t)
+    (buffer-disable-undo)
+    (highlight-parentheses-mode nil)
+    (setq whitespace-style nil)
+    (fundamental-mode)))
+
+(add-hook 'find-file-hook 'my-find-file-check-make-large-file-read-only-hook)
+
+(setq line-number-display-limit-width 2000000)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ac-auto-start 4)
- '(ac-modes (quote (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
+ '(ac-modes
+   (quote
+    (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
  '(cua-mode t nil (cua-base))
+ '(gdb-create-source-file-list nil)
+ '(package-selected-packages
+   (quote
+    (groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme auto-complete)))
  '(safe-local-variable-values (quote ((c-continued-statement-offset . 2))))
- '(whitespace-style (quote (face trailing lines empty))))
+ '(whitespace-style (quote (face trailing lines-tail empty))))
+(put 'erase-buffer 'disabled nil)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(font-lock-constant-face ((t (:foreground "#73d216"))))
- '(font-lock-type-face ((t (:foreground "YellowGreen")))))
-(put 'erase-buffer 'disabled nil)
+ '(whitespace-line ((t (:background "gray")))))
