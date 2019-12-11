@@ -306,13 +306,13 @@
 (defun find-next-tag() "" (find-tag (0)))
 
 (global-set-key (kbd "M-S-SPC") 'mark-paragraph)
-(global-set-key (kbd "M-.") 'find-tag)
-(global-set-key (kbd "M-,") 'pop-tag-mark)
+(global-set-key (kbd "M-.") 'xref-find-definitions)
+(global-set-key (kbd "M-,") 'xref-pop-marker-stack)
 (global-set-key (kbd "M--") (read-kbd-macro "C-u M-."))
 (global-set-key (kbd "M-z") 'toggle-letter-case)
 
 ; keyword completion, because Alt+Tab is used by OS
-(global-set-key (kbd "M-y") 'call-keyword-completion) 
+(global-set-key (kbd "M-y") 'completion-at-point) 
 
 ; Hard-wrap/un-hard-wrap paragraph
 (global-set-key (kbd "M-'") 'compact-uncompact-block)

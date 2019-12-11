@@ -1,1 +1,2 @@
 alias st='git status -s -b'
+alias rm='rm -i'

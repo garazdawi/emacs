@@ -1,11 +1,10 @@
 ; Setup package for MELPA installs
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/"))
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-(package-initialize) ;; You might already have this line
+;; packages
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+ )
 
 ; Setup use-package for easy MELPA installs
 (if (not (package-installed-p 'use-package))
@@ -19,13 +18,16 @@
 (load-theme 'adwaita t)
 
 ; Add ~/.emacs.d to load path.
-;(setq load-path (cons "~/.emacs.d" load-path))
+(setq load-path (cons "~/.emacs.d/lisp" load-path))
 
 (require 're-builder)
 (setq reb-re-syntax 'string)
 
 ;; fix broken ubuntu emacs
 (require 'iso-transl)
+
+(use-package company)
+(require 'company)
 
 ;; Erlang Mode
 (use-package erlang)
@@ -40,6 +42,7 @@
                                 ("\\.yrl$" . erlang-mode))))
 
 (add-hook 'erlang-mode-hook 'my-erlang-hook-function)
+(add-hook 'erlang-mode-hook 'company-mode)
 (defun my-erlang-hook-function ()
   (imenu-add-to-menubar "Functions")
   (setq erlang-skel-mail-address "lukas.larsson@erlang-solutions.com")
@@ -50,12 +53,25 @@
 
 (defun my-erlang-flymake-get-include-dirs ()
   (list (concat (erlang-flymake-get-app-dir) "include")
-        "/ldisk/lukas/otp/lib/kernel/src/"
-        "/ldisk/lukas/otp/lib/kernel/include/"))
+        ))
 (setq erlang-flymake-get-include-dirs-function 
       'my-erlang-flymake-get-include-dirs)
 
-(setq distel-tags-compliant nil)
+(setq exec-path (append exec-path '("~/apps/erlang/bin")))
+
+; Add ~/.emacs.d to load path.
+(setq load-path (cons "~/.emacs.d/yaemep" load-path))
+
+;; Install yaemep-completion-mode
+;; (Completion command can be invoked with "M-TAB")
+(require 'yaemep-completion-mode)
+
+;; Install yaemep-etags-auto-gen-mode
+;; (Use "M-." to go to thing at point and "M-," to go back")
+(require 'yaemep-etags-auto-gen-mode)
+
+;; Install yaemep-extra-erlang-menu-mode
+(require 'yaemep-extra-erlang-menu-mode)
 
 (setq *copyright-organization* "Erlang Solutions Ltd.")
 
@@ -88,8 +104,8 @@
 (add-hook 'emacs-lisp-mode-hook (lambda () (hs-minor-mode 1)))
 
 ; Redo mode
-(use-package redo+)
-(require 'redo+)
+;(use-package redo+)
+;(require 'redo+)
 (global-set-key (kbd "C-Z") 'redo)
 
 (setq vc-checkout-switches "-r.")
@@ -98,12 +114,6 @@
 (setq cua-auto-tabify-rectangles nil) ;; Don't tabify after rectangle commands
 (transient-mark-mode 1) ;; No region when it is not highlighted
 (setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
-
-;; auto-complete stuff
-(use-package popup)
-(use-package auto-complete)
-(require 'auto-complete)
-(global-auto-complete-mode t)
 
 (use-package markdown-mode)
 (autoload 'markdown-mode "markdown-mode.el"
@@ -119,6 +129,7 @@
 
 (add-hook 'erlang-mode-hook 'flyspell-prog-mode)
 (add-hook 'c-mode-common-hook 'flyspell-prog-mode)
+(add-hook 'c-mode-common-hook 'company-mode)
 
 (use-package ggtags)
 (require 'ggtags)
@@ -136,7 +147,6 @@
           (lambda ()
             (local-set-key (kbd "M-.") 'my-ggtags-find-tag-dwim)))
 
-(use-package llvm-mode)
 (require 'llvm-mode)
 ;; llvm coding standard
 (c-add-style "llvm.org"
@@ -152,8 +162,17 @@
 (use-package groovy-mode)
 (require 'groovy-mode)
 
+(use-package dockerfile-mode)
+(require 'dockerfile-mode)
+
+(use-package docker-compose-mode)
+(require 'docker-compose-mode)
+
 (use-package graphviz-dot-mode)
 (require 'graphviz-dot-mode)
+
+(use-package rust-mode)
+(require 'rust-mode)
 
 ;;;
 ;;; Custom emacs functions
@@ -266,7 +285,7 @@
  '(gdb-create-source-file-list nil)
  '(package-selected-packages
    (quote
-    (groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme auto-complete)))
+    (rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme)))
  '(safe-local-variable-values (quote ((c-continued-statement-offset . 2))))
  '(whitespace-style (quote (face trailing lines-tail empty))))
 (put 'erase-buffer 'disabled nil)

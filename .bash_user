@@ -1,6 +1,6 @@
+
 EDITOR=emacs
 GIT_EDITOR=vim
-PATH=$PATH:~/git/otp/bin:
 
 test -s ~/.alias && . ~/.alias || true
 test -s ~/.bash_local && . ~/.~/.bash_local || true
@@ -21,10 +21,22 @@ HTTP_PROXY=$http_proxy
 EQC_VIEWER=xdg-open
 LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
 LESS=' -R -iMX '
+JAVA_HOME=/usr/
 
-PATH=$HOME/apps/bin:/var/tmp/llvm/install/Release/bin:$PATH
+PATH=$HOME/apps/bin:$HOME/apps/erlang/bin:$HOME/bin:$PATH
+
+if [ -f $HOME/.cargo/env ]; then
+    source $HOME/.cargo/env
+fi
+
+export CFLAGS="-g3 -O2"
+export ERLC_USE_SERVER=true
 
 export LC_CTYPE=sv_SE.utf8
+
+remove_path_duplicates () {
+    PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
+}
 
 mkemutags () {
 
@@ -39,4 +51,23 @@ mkemutags () {
 
 }
 
-export ERL_TOP PATH GIT_EDITOR EDITOR EDEV_ROOT HTTP_PROXY EQC_VIEWER LESSOPEN LESS
+mkemu () {
+      (cd $ERL_TOP && make emulator USE_PGO=false TYPE=$*)
+}
+
+mktests () {
+    (cd $ERL_TOP && ./otp_build tests)
+}
+
+mkerlenv () {
+    if [ ! -f ./otp_build ]; then
+        echo "Not a otp repo"
+        return 1
+    fi
+    export ERL_TOP=`pwd`
+    PATH=$ERL_TOP/bin:$PATH
+    remove_path_duplicates
+    mkemutags
+}
+
+export ERL_TOP PATH GIT_EDITOR EDITOR EDEV_ROOT HTTP_PROXY EQC_VIEWER LESSOPEN LESS JAVA_HOME

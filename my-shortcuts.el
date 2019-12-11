@@ -54,6 +54,8 @@
 
 (global-set-key (read-kbd-macro "S-<delete>") 'nuke-line)            ; Delete the whole line with Shift-DEL
 
+(global-set-key (read-kbd-macro "M-y") 'yaemep-completion)
+
 ;;; === Custom functions =====================================================
 
 (defun duplicate-current-line ()
