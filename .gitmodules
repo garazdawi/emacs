@@ -1,6 +1,3 @@
-[submodule "auto-complete"]
-	path = auto-complete
-	url = https://github.com/auto-complete/auto-complete.git
 [submodule "yaemep"]
 	path = yaemep
 	url = git@github.com:kjellwinblad/yaemep
