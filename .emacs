@@ -29,6 +29,22 @@
 (use-package company)
 (require 'company)
 
+(use-package company-irony)
+(require 'company-irony)
+
+; Needs apt-get install libclang-8-dev
+(use-package irony)
+(require 'irony)
+
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
+
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+(eval-after-load 'company
+  '(add-to-list 'company-backends 'company-irony))
+
 ;; Erlang Mode
 (use-package erlang)
 (require 'erlang-start)
@@ -286,7 +302,10 @@
  '(package-selected-packages
    (quote
     (rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme)))
- '(safe-local-variable-values (quote ((c-continued-statement-offset . 2))))
+ '(safe-local-variable-values
+   (quote
+    ((c-indent-level . 2)
+     (c-continued-statement-offset . 2))))
  '(whitespace-style (quote (face trailing lines-tail empty))))
 (put 'erase-buffer 'disabled nil)
 (custom-set-faces

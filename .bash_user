@@ -45,9 +45,9 @@ mkemutags () {
         return 1
     fi
 
-    (cd $ERL_TOP/erts/ && find . -name '*.[hc]*' -print | gtags -f - )
-    (cd $ERL_TOP/lib/erl_interface && find . -name '*.[hc]*' -print | gtags -f - )
-    (cd $ERL_TOP/lib/ && find . -name '*.*rl' -print | xargs ctags -e )
+    (cd $ERL_TOP/erts/ && find . -name '*.[hc]*' -print | grep -v "/test/" | gtags -f - )
+    (cd $ERL_TOP/lib/erl_interface && find . -name '*.[hc]*' -print | grep -v "/test/" | gtags -f - )
+    (cd $ERL_TOP/lib/ && find . -name '*.*rl' -print | grep -v "/test/" | xargs ctags -e )
 
 }
 
