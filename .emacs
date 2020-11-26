@@ -3,7 +3,7 @@
 (when (>= emacs-major-version 24)
   (require 'package)
   (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/packages/") t)
  )
 
 ; Setup use-package for easy MELPA installs
@@ -45,6 +45,13 @@
 (eval-after-load 'company
   '(add-to-list 'company-backends 'company-irony))
 
+(use-package flycheck
+  :init (global-flycheck-mode))
+
+(use-package flycheck-irony)
+(eval-after-load 'flycheck
+  '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+
 ;; Erlang Mode
 (use-package erlang)
 (require 'erlang-start)
@@ -65,15 +72,15 @@
   (setq user-full-name "Lukas Larsson")
   (hs-minor-mode 1))
 
-(require 'erlang-flymake)
+;; (require 'erlang-flymake)
 
-(defun my-erlang-flymake-get-include-dirs ()
-  (list (concat (erlang-flymake-get-app-dir) "include")
-        ))
-(setq erlang-flymake-get-include-dirs-function 
-      'my-erlang-flymake-get-include-dirs)
+;; (defun my-erlang-flymake-get-include-dirs ()
+;;   (list (concat (erlang-flymake-get-app-dir) "include")
+;;         ))
+;; (setq erlang-flymake-get-include-dirs-function 
+;;       'my-erlang-flymake-get-include-dirs)
 
-(setq exec-path (append exec-path '("~/apps/erlang/bin")))
+;; (setq exec-path (append exec-path '("~/apps/erlang/bin")))
 
 ; Add ~/.emacs.d to load path.
 (setq load-path (cons "~/.emacs.d/yaemep" load-path))
@@ -163,17 +170,17 @@
           (lambda ()
             (local-set-key (kbd "M-.") 'my-ggtags-find-tag-dwim)))
 
-(require 'llvm-mode)
-;; llvm coding standard
-(c-add-style "llvm.org"
-             '("gnu"
-	       (fill-column . 80)
-	       (c++-indent-level . 2)
-	       (c-basic-offset . 2)
-	       (indent-tabs-mode . nil)
-	       (c-offsets-alist . ((arglist-intro . ++)
-				   (innamespace . 0)
-				   (member-init-intro . ++)))))
+;; (require 'llvm-mode)
+;; ;; llvm coding standard
+;; (c-add-style "llvm.org"
+;;              '("gnu"
+;; 	       (fill-column . 80)
+;; 	       (c++-indent-level . 2)
+;; 	       (c-basic-offset . 2)
+;; 	       (indent-tabs-mode . nil)
+;; 	       (c-offsets-alist . ((arglist-intro . ++)
+;; 				   (innamespace . 0)
+;; 				   (member-init-intro . ++)))))
 
 (use-package groovy-mode)
 (require 'groovy-mode)
@@ -304,7 +311,14 @@
     (rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme)))
  '(safe-local-variable-values
    (quote
-    ((c-indent-level . 2)
+    ((eval when
+           (fboundp
+            (quote c-toggle-comment-style))
+           (c-toggle-comment-style 1))
+     (eval c-set-offset
+           (quote innamespace)
+           0)
+     (c-indent-level . 2)
      (c-continued-statement-offset . 2))))
  '(whitespace-style (quote (face trailing lines-tail empty))))
 (put 'erase-buffer 'disabled nil)

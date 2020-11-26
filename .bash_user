@@ -29,6 +29,7 @@ if [ -f $HOME/.cargo/env ]; then
     source $HOME/.cargo/env
 fi
 
+export KERL_BUILD_DOCS=yes
 export CFLAGS="-g3 -O2"
 export ERLC_USE_SERVER=true
 
@@ -68,6 +69,11 @@ mkerlenv () {
     PATH=$ERL_TOP/bin:$PATH
     remove_path_duplicates
     mkemutags
+    hash -r
+    if [ -f ~/.emacs.d/tasks.json -a ! -f "$ERL_TOP/.vscode/tasks.json" ]; then
+       ! mkdir "$ERL_TOP/.vscode"
+       cp ~/.emacs.d/tasks.json "$ERL_TOP/.vscode/"
+    fi
 }
 
 export ERL_TOP PATH GIT_EDITOR EDITOR EDEV_ROOT HTTP_PROXY EQC_VIEWER LESSOPEN LESS JAVA_HOME

@@ -1,0 +1,9 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "ctrl+shift+I",
+        "when": "editorLangId == erlang",
+        "command": "workbench.action.tasks.runTask",
+        "args": "emacs-indent"
+    }
+]
