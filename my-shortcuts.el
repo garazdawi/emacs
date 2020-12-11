@@ -25,7 +25,7 @@
 (global-set-key (read-kbd-macro "C-.")   'erl-find-source-under-point)     ; Jump to function definition
 (global-set-key (read-kbd-macro "C-,")   'erl-find-source-unwind)          ; Jump back to where we came from
 
-(global-set-key (read-kbd-macro "C-L")   'goto-line)              ; Jump to line
+(global-set-key (read-kbd-macro "C-S-L")   'goto-line)              ; Jump to line
 
 (global-set-key (read-kbd-macro "C-Q")   'save-buffers-kill-terminal) ; Quit Emacs
 
@@ -53,8 +53,6 @@
 (global-set-key (read-kbd-macro "C-<up>") 'move-current-line-upward) ; Switch a line upwards with Ctrl-<up>
 
 (global-set-key (read-kbd-macro "S-<delete>") 'nuke-line)            ; Delete the whole line with Shift-DEL
-
-(global-set-key (read-kbd-macro "M-y") 'yaemep-completion)
 
 ;;; === Custom functions =====================================================
 

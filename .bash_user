@@ -72,7 +72,10 @@ mkerlenv () {
     hash -r
     if [ -f ~/.emacs.d/tasks.json -a ! -f "$ERL_TOP/.vscode/tasks.json" ]; then
        ! mkdir "$ERL_TOP/.vscode"
-       cp ~/.emacs.d/tasks.json "$ERL_TOP/.vscode/"
+       ln -s ~/.emacs.d/tasks.json "$ERL_TOP/.vscode/tasks.json"
+    fi
+    if [ -f ~/.emacs.d/erlang_ls.config -a ! -f $ERL_TOP/erlang_ls.config ]; then
+       ln -s ~/.emacs.d/erlang_ls.config "$ERL_TOP/erlang_ls.config"
     fi
 }
 

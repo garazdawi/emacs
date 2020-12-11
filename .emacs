@@ -1,16 +1,21 @@
 ; Setup package for MELPA installs
 ;; packages
-(when (>= emacs-major-version 24)
-  (require 'package)
-  (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/packages/") t)
- )
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(package-initialize)
 
 ; Setup use-package for easy MELPA installs
-(if (not (package-installed-p 'use-package))
-    (progn
-      (package-refresh-contents)
-      (package-install 'use-package)))
+(package-refresh-contents)
+
+;; Define a utility function which either installs a package (if it is
+;; missing) or requires it (if it already installed).
+(defun package-require (pkg &optional require-name)
+  "Install a package only if it's not already installed."
+  (when (not (package-installed-p pkg))
+    (package-install pkg))
+  (if require-name
+      (require require-name)
+    (require pkg)))
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -26,15 +31,11 @@
 ;; fix broken ubuntu emacs
 (require 'iso-transl)
 
-(use-package company)
-(require 'company)
-
-(use-package company-irony)
-(require 'company-irony)
+(package-require 'company)
+(package-require 'company-irony)
 
 ; Needs apt-get install libclang-8-dev
-(use-package irony)
-(require 'irony)
+(package-require 'irony)
 
 (add-hook 'c++-mode-hook 'irony-mode)
 (add-hook 'c-mode-hook 'irony-mode)
@@ -52,9 +53,8 @@
 (eval-after-load 'flycheck
   '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
-;; Erlang Mode
-(use-package erlang)
-(require 'erlang-start)
+;; Erlang Mode with lsp
+(package-require 'erlang)
 (setq auto-mode-alist (append auto-mode-alist
                               '(("\\.rel$" . erlang-mode)
                                 ("\\.app$" . erlang-mode)
@@ -72,29 +72,63 @@
   (setq user-full-name "Lukas Larsson")
   (hs-minor-mode 1))
 
-;; (require 'erlang-flymake)
+(package-require 'which-key)
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
 
-;; (defun my-erlang-flymake-get-include-dirs ()
-;;   (list (concat (erlang-flymake-get-app-dir) "include")
-;;         ))
-;; (setq erlang-flymake-get-include-dirs-function 
-;;       'my-erlang-flymake-get-include-dirs)
+;; Set the path where we can find the correct erlang_lsp
+(setq exec-path (append exec-path '("/home/lukas/git/erlang_ls/_build/default/bin/")))
 
-;; (setq exec-path (append exec-path '("~/apps/erlang/bin")))
+;; Customize prefix for key-bindings
+(setq lsp-keymap-prefix "C-L")
 
-; Add ~/.emacs.d to load path.
-(setq load-path (cons "~/.emacs.d/yaemep" load-path))
+;; Include the Language Server Protocol Clients
+(package-require 'lsp-mode)
 
-;; Install yaemep-completion-mode
-;; (Completion command can be invoked with "M-TAB")
-(require 'yaemep-completion-mode)
+;; Enable LSP for Erlang files
+(add-hook 'erlang-mode-hook #'lsp)
 
-;; Install yaemep-etags-auto-gen-mode
-;; (Use "M-." to go to thing at point and "M-," to go back")
-(require 'yaemep-etags-auto-gen-mode)
+;; Require and enable the Yasnippet templating system
+(package-require 'yasnippet)
+(yas-global-mode t)
 
-;; Install yaemep-extra-erlang-menu-mode
-(require 'yaemep-extra-erlang-menu-mode)
+;; Enable logging for lsp-mode
+(setq lsp-log-io t)
+
+;; Show line and column numbers
+(add-hook 'erlang-mode-hook 'linum-mode)
+(add-hook 'erlang-mode-hook 'column-number-mode)
+
+;; Enable and configure the LSP UI Package
+(package-require 'lsp-ui)
+(setq lsp-ui-sideline-enable t)
+(setq lsp-ui-doc-enable nil)
+; (setq lsp-ui-doc-position 'bottom)
+
+;; Enable LSP Origami Mode (for folding ranges)
+(package-require 'lsp-origami)
+(add-hook 'origami-mode-hook #'lsp-origami-mode)
+(add-hook 'erlang-mode-hook #'origami-mode)
+
+;; Provide commands to list workspace symbols:
+;; - helm-lsp-workspace-symbol
+;; - helm-lsp-global-workspace-symbol
+(package-install 'helm-lsp)
+
+;; Which-key integration
+(package-require 'which-key)
+(add-hook 'erlang-mode-hook 'which-key-mode)
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+
+;; Always show diagnostics at the bottom, using 1/3 of the available space
+(add-to-list 'display-buffer-alist
+             `(,(rx bos "*Flycheck errors*" eos)
+              (display-buffer-reuse-window
+               display-buffer-in-side-window)
+              (side            . bottom)
+              (reusable-frames . visible)
+              (window-height   . 0.33)))
 
 (setq *copyright-organization* "Erlang Solutions Ltd.")
 
@@ -182,20 +216,11 @@
 ;; 				   (innamespace . 0)
 ;; 				   (member-init-intro . ++)))))
 
-(use-package groovy-mode)
-(require 'groovy-mode)
-
-(use-package dockerfile-mode)
-(require 'dockerfile-mode)
-
-(use-package docker-compose-mode)
-(require 'docker-compose-mode)
-
-(use-package graphviz-dot-mode)
-(require 'graphviz-dot-mode)
-
-(use-package rust-mode)
-(require 'rust-mode)
+(package-require 'groovy-mode)
+(package-require 'dockerfile-mode)
+(package-require 'docker-compose-mode)
+(package-require 'graphviz-dot-mode)
+(package-require 'rust-mode)
 
 ;;;
 ;;; Custom emacs functions
@@ -302,25 +327,19 @@
  ;; If there is more than one, they won't work right.
  '(ac-auto-start 4)
  '(ac-modes
-   (quote
-    (emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode)))
+   '(emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode))
  '(cua-mode t nil (cua-base))
  '(gdb-create-source-file-list nil)
  '(package-selected-packages
-   (quote
-    (rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme)))
+   '(rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
  '(safe-local-variable-values
-   (quote
-    ((eval when
-           (fboundp
-            (quote c-toggle-comment-style))
+   '((eval when
+           (fboundp 'c-toggle-comment-style)
            (c-toggle-comment-style 1))
-     (eval c-set-offset
-           (quote innamespace)
-           0)
+     (eval c-set-offset 'innamespace 0)
      (c-indent-level . 2)
-     (c-continued-statement-offset . 2))))
- '(whitespace-style (quote (face trailing lines-tail empty))))
+     (c-continued-statement-offset . 2)))
+ '(whitespace-style '(face trailing lines-tail empty)))
 (put 'erase-buffer 'disabled nil)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
