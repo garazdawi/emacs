@@ -20,7 +20,9 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(load-theme 'adwaita t)
+;; (load-theme 'adwaita t)
+(package-install 'alect-themes)
+(load-theme 'alect-light-alt t)
 
 ; Add ~/.emacs.d to load path.
 (setq load-path (cons "~/.emacs.d/lisp" load-path))
@@ -72,12 +74,14 @@
   (setq user-full-name "Lukas Larsson")
   (hs-minor-mode 1))
 
+;; Set the path where we can find the correct erlang_lsp
+(setq exec-path (append exec-path '("/home/lukas/git/erlang_ls/_build/default/bin/")))
+
+; (setq lsp-erlang-server-path "erlang_ls --log-level all")
+
 (package-require 'which-key)
 (with-eval-after-load 'lsp-mode
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
-
-;; Set the path where we can find the correct erlang_lsp
-(setq exec-path (append exec-path '("/home/lukas/git/erlang_ls/_build/default/bin/")))
 
 ;; Customize prefix for key-bindings
 (setq lsp-keymap-prefix "C-L")
@@ -329,9 +333,11 @@
  '(ac-modes
    '(emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode))
  '(cua-mode t nil (cua-base))
+ '(custom-safe-themes
+   '("5e3fc08bcadce4c6785fc49be686a4a82a356db569f55d411258984e952f194a" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "df01ad8d956b9ea15ca75adbb012f99d2470f33c7b383a8be65697239086672e" "fa96a61e4eca5f339ad7f1f3442cb5a83696f6a45d9fe2a7bf3b75fc6912bb91" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
  '(gdb-create-source-file-list nil)
  '(package-selected-packages
-   '(rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
+   '(gist alect-themes rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
  '(safe-local-variable-values
    '((eval when
            (fboundp 'c-toggle-comment-style)

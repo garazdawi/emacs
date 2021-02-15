@@ -42,7 +42,7 @@ remove_path_duplicates () {
 mkemutags () {
 
     if [ "x$ERL_TOP" = "x" ]; then
-        print_error "\$ERL_TOP not set!"
+        echo "\$ERL_TOP not set!" >&2
         return 1
     fi
 
@@ -77,6 +77,20 @@ mkerlenv () {
     if [ -f ~/.emacs.d/erlang_ls.config -a ! -f $ERL_TOP/erlang_ls.config ]; then
        ln -s ~/.emacs.d/erlang_ls.config "$ERL_TOP/erlang_ls.config"
     fi
+}
+
+mkclean () {
+    if [ "x$ERL_TOP" != "x$(pwd)" ]; then
+        echo "You must be at \$ERL_TOP to execute this command!" >&2
+        return 1
+    fi
+    git clean -xfdq
+    mkerlenv
+}
+
+mkcleansetup () {
+     mkclean
+     ./otp_build setup $*
 }
 
 export ERL_TOP PATH GIT_EDITOR EDITOR EDEV_ROOT HTTP_PROXY EQC_VIEWER LESSOPEN LESS JAVA_HOME
