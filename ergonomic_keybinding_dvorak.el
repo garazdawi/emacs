@@ -283,7 +283,6 @@
 (global-set-key (kbd "M-u") 'delete-char)
 
 ; Delete previous/next word.
-;(global-set-key (kbd "M-.") 'backward-kill-word)
 (global-set-key (kbd "M-p") 'kill-word)
 
 ; Copy Cut Paste, Paste previous
@@ -305,10 +304,16 @@
 ;;; Textual Transformation
 (defun find-next-tag() "" (find-tag (0)))
 
+;; See https://github.com/emacs-lsp/lsp-java/issues/122#issuecomment-481833651
+(setq xref-prompt-for-identifier '(not xref-find-definitions
+                                            xref-find-definitions-other-window
+                                            xref-find-definitions-other-frame
+                                            xref-find-references))
+
 (global-set-key (kbd "M-S-SPC") 'mark-paragraph)
 (global-set-key (kbd "M-.") 'xref-find-definitions)
 (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
-(global-set-key (kbd "M--") (read-kbd-macro "C-u M-."))
+(global-set-key (kbd "M--") 'xref-find-references)
 (global-set-key (kbd "M-z") 'toggle-letter-case)
 
 ; keyword completion, because Alt+Tab is used by OS

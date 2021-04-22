@@ -106,8 +106,8 @@
 ;; Enable and configure the LSP UI Package
 (package-require 'lsp-ui)
 (setq lsp-ui-sideline-enable t)
-(setq lsp-ui-doc-enable nil)
-; (setq lsp-ui-doc-position 'bottom)
+;(setq lsp-ui-doc-enable nil)
+(setq lsp-ui-doc-position 'bottom)
 
 ;; Enable LSP Origami Mode (for folding ranges)
 (package-require 'lsp-origami)
@@ -139,6 +139,8 @@
 ;; Interactively Do Things (smart tab-completion in find file etc.)
 (require 'ido)
 (ido-mode t)
+
+(package-require 'gist)
 
 (use-package highlight-parentheses)
 (require 'highlight-parentheses)
@@ -322,6 +324,13 @@
 
 (add-hook 'find-file-hook 'my-find-file-check-make-large-file-read-only-hook)
 
+(defun display-ansi-colors ()
+  (interactive)
+  (ansi-color-apply-on-region (point-min) (point-max)))
+
+;; decode ANSI color escape sequences for .log files
+(add-to-list 'auto-mode-alist '("\\.txt\\'" . display-ansi-colors))
+
 (setq line-number-display-limit-width 2000000)
 
 (custom-set-variables
@@ -337,7 +346,7 @@
    '("5e3fc08bcadce4c6785fc49be686a4a82a356db569f55d411258984e952f194a" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "df01ad8d956b9ea15ca75adbb012f99d2470f33c7b383a8be65697239086672e" "fa96a61e4eca5f339ad7f1f3442cb5a83696f6a45d9fe2a7bf3b75fc6912bb91" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
  '(gdb-create-source-file-list nil)
  '(package-selected-packages
-   '(gist alect-themes rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
+   '(lua-mode gist alect-themes rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
  '(safe-local-variable-values
    '((eval when
            (fboundp 'c-toggle-comment-style)

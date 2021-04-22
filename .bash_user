@@ -1,4 +1,4 @@
-
+# -*- mode: sh -*-
 EDITOR=emacs
 GIT_EDITOR=vim
 
@@ -23,12 +23,13 @@ LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
 LESS=' -R -iMX '
 JAVA_HOME=/usr/
 
-PATH=$HOME/apps/bin:$HOME/apps/erlang/bin:$HOME/bin:$PATH
+PATH=$HOME/.cache/rebar3/bin:$HOME/apps/bin:$HOME/apps/erlang/bin:$HOME/bin:$PATH
 
 if [ -f $HOME/.cargo/env ]; then
     source $HOME/.cargo/env
 fi
 
+export ERL_ZFLAGS="-kernel shell_history enabled"
 export KERL_BUILD_DOCS=yes
 export CFLAGS="-g3 -O2"
 export ERLC_USE_SERVER=true
@@ -63,7 +64,7 @@ mktests () {
 mkerlenv () {
     if [ ! -f ./otp_build ]; then
         echo "Not a otp repo"
-        return 1
+        exit 1
     fi
     export ERL_TOP=`pwd`
     PATH=$ERL_TOP/bin:$PATH
@@ -86,11 +87,16 @@ mkclean () {
     fi
     git clean -xfdq
     mkerlenv
+    return 0
 }
 
 mkcleansetup () {
-     mkclean
-     ./otp_build setup $*
+     if mkclean; then
+        ./otp_build setup $*
+        if [ "$*" = "-t" ]; then
+           make common_test
+        fi
+     fi
 }
 
 export ERL_TOP PATH GIT_EDITOR EDITOR EDEV_ROOT HTTP_PROXY EQC_VIEWER LESSOPEN LESS JAVA_HOME
