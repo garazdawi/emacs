@@ -29,6 +29,11 @@ if [ -f $HOME/.cargo/env ]; then
     source $HOME/.cargo/env
 fi
 
+if [ -f $HOME/.asdf/asdf.sh ]; then
+    . $HOME/.asdf/asdf.sh
+    . $HOME/.asdf/completions/asdf.bash
+fi
+
 export ERL_ZFLAGS="-kernel shell_history enabled"
 export KERL_BUILD_DOCS=yes
 export CFLAGS="-g3 -O2"
@@ -64,7 +69,7 @@ mktests () {
 mkerlenv () {
     if [ ! -f ./otp_build ]; then
         echo "Not a otp repo"
-        exit 1
+        return 1
     fi
     export ERL_TOP=`pwd`
     PATH=$ERL_TOP/bin:$PATH
@@ -94,7 +99,27 @@ mkcleansetup () {
      if mkclean; then
         ./otp_build setup $*
         if [ "$*" = "-t" ]; then
-           make common_test
+            BOOTSTRAP_ROOT=$ERL_TOP
+            INSTALL_DATA="install -c -m 644"
+            for app in xmerl common_test; do
+                if test ! -d $BOOTSTRAP_ROOT/bootstrap/lib/$app; then
+                    mkdir $BOOTSTRAP_ROOT/bootstrap/lib/$app
+                fi
+                if test ! -d $BOOTSTRAP_ROOT/bootstrap/lib/$app/include; then
+                    mkdir $BOOTSTRAP_ROOT/bootstrap/lib/$app/include
+                fi
+                for x in lib/$app/include/*.hrl; do
+	            BN=`basename $x`;
+	            TF=$BOOTSTRAP_ROOT/bootstrap/lib/$app/include/$BN;
+	            test -f  $TF &&
+	                test '!' -z "`find $x -newer $TF -print`" &&
+	                ${INSTALL_DATA} -p $x $TF
+	            test '!' -f $TF &&
+	                ${INSTALL_DATA} -p $x $TF
+	            true
+	        done
+            done
+            make common_test
         fi
      fi
 }

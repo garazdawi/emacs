@@ -18,10 +18,16 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(use-package editorconfig)
+(require 'editorconfig)
+(editorconfig-mode)
+
 (use-package erlang)
 (require 'erlang-start)
 (erlang-mode)
+
 (defun emacs-format-function ()
+   (editorconfig-apply)
    (indent-region (point-min) (point-max) nil)
    (untabify (point-min) (point-max))
    (save-buffer)

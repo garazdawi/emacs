@@ -76,6 +76,7 @@
 
 ;; Set the path where we can find the correct erlang_lsp
 (setq exec-path (append exec-path '("/home/lukas/git/erlang_ls/_build/default/bin/")))
+(setq exec-path (append exec-path '("/home/lukas/git/erlang_ls/_build/dap/bin/")))
 
 ; (setq lsp-erlang-server-path "erlang_ls --log-level all")
 
@@ -344,9 +345,10 @@
  '(cua-mode t nil (cua-base))
  '(custom-safe-themes
    '("5e3fc08bcadce4c6785fc49be686a4a82a356db569f55d411258984e952f194a" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "df01ad8d956b9ea15ca75adbb012f99d2470f33c7b383a8be65697239086672e" "fa96a61e4eca5f339ad7f1f3442cb5a83696f6a45d9fe2a7bf3b75fc6912bb91" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
+ '(flycheck-checker-error-threshold 1000)
  '(gdb-create-source-file-list nil)
  '(package-selected-packages
-   '(lua-mode gist alect-themes rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
+   '(editorconfig lua-mode gist alect-themes rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
  '(safe-local-variable-values
    '((eval when
            (fboundp 'c-toggle-comment-style)
