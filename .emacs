@@ -27,6 +27,9 @@
 ; Add ~/.emacs.d to load path.
 (setq load-path (cons "~/.emacs.d/lisp" load-path))
 
+(package-require 'editorconfig)
+(editorconfig-mode)
+
 (require 're-builder)
 (setq reb-re-syntax 'string)
 
