@@ -23,7 +23,7 @@ LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
 LESS=' -R -iMX '
 JAVA_HOME=/usr/
 
-PATH=$HOME/.cache/rebar3/bin:$HOME/apps/bin:$HOME/apps/erlang/bin:$HOME/bin:$PATH
+PATH=$HOME/.cache/rebar3/bin:$HOME/apps/bin:$HOME/apps/erlang/bin:$HOME/bin:$HOME/.local/bin:$PATH
 
 if [ -f $HOME/.cargo/env ]; then
     source $HOME/.cargo/env
@@ -38,6 +38,10 @@ export ERL_ZFLAGS="-kernel shell_history enabled"
 export KERL_BUILD_DOCS=yes
 export CFLAGS="-g3 -O2"
 export ERLC_USE_SERVER=true
+if command -v ccache > /dev/null; then
+    export CC="ccache gcc"
+    export CXX="ccache g++"
+fi
 
 export LC_CTYPE=sv_SE.utf8
 
@@ -72,15 +76,16 @@ mkerlenv () {
         return 1
     fi
     export ERL_TOP=`pwd`
+    export CCACHE_BASEDIR="$ERL_TOP"
     PATH=$ERL_TOP/bin:$PATH
     remove_path_duplicates
     mkemutags
     hash -r
-    if [ -f ~/.emacs.d/tasks.json -a ! -f "$ERL_TOP/.vscode/tasks.json" ]; then
+    if [ -f ~/.emacs.d/tasks.json ] && [ ! -f "$ERL_TOP/.vscode/tasks.json" ]; then
        ! mkdir "$ERL_TOP/.vscode"
        ln -s ~/.emacs.d/tasks.json "$ERL_TOP/.vscode/tasks.json"
     fi
-    if [ -f ~/.emacs.d/erlang_ls.config -a ! -f $ERL_TOP/erlang_ls.config ]; then
+    if [ -f ~/.emacs.d/erlang_ls.config ] && [ ! -f "$ERL_TOP/erlang_ls.config" ]; then
        ln -s ~/.emacs.d/erlang_ls.config "$ERL_TOP/erlang_ls.config"
     fi
 }
@@ -96,31 +101,34 @@ mkclean () {
 }
 
 mkcleansetup () {
-     if mkclean; then
-        ./otp_build setup $*
-        if [ "$*" = "-t" ]; then
-            BOOTSTRAP_ROOT=$ERL_TOP
-            INSTALL_DATA="install -c -m 644"
-            for app in xmerl common_test; do
-                if test ! -d $BOOTSTRAP_ROOT/bootstrap/lib/$app; then
-                    mkdir $BOOTSTRAP_ROOT/bootstrap/lib/$app
-                fi
-                if test ! -d $BOOTSTRAP_ROOT/bootstrap/lib/$app/include; then
-                    mkdir $BOOTSTRAP_ROOT/bootstrap/lib/$app/include
-                fi
-                for x in lib/$app/include/*.hrl; do
-	            BN=`basename $x`;
-	            TF=$BOOTSTRAP_ROOT/bootstrap/lib/$app/include/$BN;
-	            test -f  $TF &&
-	                test '!' -z "`find $x -newer $TF -print`" &&
-	                ${INSTALL_DATA} -p $x $TF
-	            test '!' -f $TF &&
-	                ${INSTALL_DATA} -p $x $TF
-	            true
-	        done
-            done
-            make common_test
-        fi
+     mkclean || return $?
+     ./otp_build setup "$1" || return $?
+     make compdb || return $?
+     SETTINGS=$(jq '. += { "C_Cpp.default.compileCommands": "compile_commands.json" }' ".vscode/settings.json")
+     ! mkdir "$ERL_TOP/.vscode"
+     printf "%s" "${SETTINGS}" > ".vscode/settings.json"
+     if [ "$1" = "-t" ]; then
+         BOOTSTRAP_ROOT=$ERL_TOP
+         INSTALL_DATA="install -c -m 644"
+         for app in xmerl common_test; do
+             if test ! -d $BOOTSTRAP_ROOT/bootstrap/lib/$app; then
+                 mkdir $BOOTSTRAP_ROOT/bootstrap/lib/$app
+             fi
+             if test ! -d $BOOTSTRAP_ROOT/bootstrap/lib/$app/include; then
+                 mkdir $BOOTSTRAP_ROOT/bootstrap/lib/$app/include
+             fi
+             for x in lib/$app/include/*.hrl; do
+	         BN=`basename $x`;
+	         TF=$BOOTSTRAP_ROOT/bootstrap/lib/$app/include/$BN;
+	         test -f  $TF &&
+	             test '!' -z "`find $x -newer $TF -print`" &&
+	             ${INSTALL_DATA} -p $x $TF
+	         test '!' -f $TF &&
+	             ${INSTALL_DATA} -p $x $TF
+	         true
+	     done
+         done
+         make common_test syntax_tools
      fi
 }
 

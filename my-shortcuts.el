@@ -13,8 +13,18 @@
 (global-set-key (read-kbd-macro "M-<down>") 'flymake-goto-next-error) ; Next flymake error
 (global-set-key (read-kbd-macro "M-<up>")   'flymake-goto-prev-error) ; Previous flymake error
 
-(global-set-key (read-kbd-macro "C-R")   'query-replace)          ; search and replace with Ctrl-R
-(global-set-key (read-kbd-macro "C-S-R") 'query-replace-regexp)   ; search and replace (regexp) with Ctrl-Shift-R
+(defun my-query-replace-regexp ()
+  (interactive)
+  (let ((after-change-functions nil)) ; empty when executing this func
+    (call-interactively 'query-replace-regexp)))
+
+(defun my-query-replace ()
+  (interactive)
+  (let ((after-change-functions nil)) ; empty when executing this func
+    (call-interactively 'query-replace)))
+
+(global-set-key (read-kbd-macro "C-R")   'my-query-replace)          ; search and replace with Ctrl-R
+(global-set-key (read-kbd-macro "C-S-R") 'my-query-replace-regexp)   ; search and replace (regexp) with Ctrl-Shift-R
 
 (global-set-key (read-kbd-macro "C-/")   'comment-region)         ; Comment the region with Ctrl-/
 (global-set-key (read-kbd-macro "C-?")   'uncomment-region)       ; Uncomment the region with Ctrl-?

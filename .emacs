@@ -4,6 +4,10 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
 
+;; https://stackoverflow.com/questions/26108655/error-updating-emacs-packages-failed-to-download-gnu-archive
+; (setq package-check-signature nil)
+(package-install 'gnu-elpa-keyring-update)
+
 ; Setup use-package for easy MELPA installs
 (package-refresh-contents)
 
@@ -17,8 +21,11 @@
       (require require-name)
     (require pkg)))
 
-(require 'use-package)
+(package-require 'use-package)
 (setq use-package-always-ensure t)
+
+(package-require 'exec-path-from-shell)
+(exec-path-from-shell-initialize)
 
 ;; (load-theme 'adwaita t)
 (package-install 'alect-themes)
@@ -77,9 +84,19 @@
   (setq user-full-name "Lukas Larsson")
   (hs-minor-mode 1))
 
+(with-eval-after-load 'lsp-mode
+  ;; ELP, added as priority 0 (> -1) so takes priority over the built-in one
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("elp" "server"))
+                    :major-modes '(erlang-mode)
+                    :priority 0
+                    :server-id 'erlang-language-platform))
+  )
+
+
 ;; Set the path where we can find the correct erlang_lsp
-(setq exec-path (append exec-path '("/home/lukas/git/erlang_ls/_build/default/bin/")))
-(setq exec-path (append exec-path '("/home/lukas/git/erlang_ls/_build/dap/bin/")))
+;; (setq exec-path (append exec-path '("/home/eluklar/git/erlang-ls/_build/default/bin/")))
+;; (setq exec-path (append exec-path '("/home/eluklar/git/erlang-ls/_build/dap/bin/")))
 
 ; (setq lsp-erlang-server-path "erlang_ls --log-level all")
 
@@ -93,15 +110,38 @@
 ;; Include the Language Server Protocol Clients
 (package-require 'lsp-mode)
 
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]bootstrap\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]release\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]system\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]ebin\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]doc\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]emulator\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]make_test_dir\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]lib_src\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "SUITE_data\\'")
+  )
+
 ;; Enable LSP for Erlang files
 (add-hook 'erlang-mode-hook #'lsp)
+
+(package-require 'elixir-mode)
+; (add-hook 'elixir-mode-hook #'lsp)
+(use-package lsp-mode
+    :commands lsp
+    :ensure t
+    :diminish lsp-mode
+    :hook
+    (elixir-mode . lsp)
+    :init
+    (add-to-list 'exec-path "/home/eluklar/git/elixir-ls/release"))
 
 ;; Require and enable the Yasnippet templating system
 (package-require 'yasnippet)
 (yas-global-mode t)
 
 ;; Enable logging for lsp-mode
-(setq lsp-log-io t)
+;; (setq lsp-log-io f)
 
 ;; Show line and column numbers
 (add-hook 'erlang-mode-hook 'linum-mode)
@@ -112,6 +152,7 @@
 (setq lsp-ui-sideline-enable t)
 ;(setq lsp-ui-doc-enable nil)
 (setq lsp-ui-doc-position 'bottom)
+(setq lsp-inlay-hint-enable t)
 
 ;; Enable LSP Origami Mode (for folding ranges)
 (package-require 'lsp-origami)
@@ -194,8 +235,8 @@
               tab-width 8
               indent-tabs-mode nil)
 
-(add-hook 'erlang-mode-hook 'flyspell-prog-mode)
-(add-hook 'c-mode-common-hook 'flyspell-prog-mode)
+(add-hook 'text-mode-hook 'flyspell-mode)
+(add-hook 'prog-mode-hook 'flyspell-prog-mode)
 (add-hook 'c-mode-common-hook 'company-mode)
 
 (use-package ggtags)
@@ -227,6 +268,12 @@
 ;; 				   (member-init-intro . ++)))))
 
 (package-require 'groovy-mode)
+(defun groovy-mode-hook ()
+  (setq tab-width 2
+        indent-tabs-mode nil
+        c-basic-offset 2)
+  )
+(add-hook 'groovy-mode-hook 'groovy-mode-hook)
 (package-require 'dockerfile-mode)
 (package-require 'docker-compose-mode)
 (package-require 'graphviz-dot-mode)
@@ -337,6 +384,11 @@
 
 (setq line-number-display-limit-width 2000000)
 
+(defun my-xml-hook ()
+  (setq nxml-child-indent 2)
+)
+(add-hook 'nxml-mode-hook 'my-xml-hook)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -344,16 +396,18 @@
  ;; If there is more than one, they won't work right.
  '(ac-auto-start 4)
  '(ac-modes
-   '(emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode xml-mode sgml-mode erlang-mode))
+   '(emacs-lisp-mode lisp-interaction-mode c-mode cc-mode c++-mode java-mode perl-mode cperl-mode python-mode ruby-mode ecmascript-mode javascript-mode js2-mode php-mode css-mode makefile-mode sh-mode fortran-mode f90-mode ada-mode nxml-mode sgml-mode erlang-mode))
  '(cua-mode t nil (cua-base))
  '(custom-safe-themes
    '("5e3fc08bcadce4c6785fc49be686a4a82a356db569f55d411258984e952f194a" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "df01ad8d956b9ea15ca75adbb012f99d2470f33c7b383a8be65697239086672e" "fa96a61e4eca5f339ad7f1f3442cb5a83696f6a45d9fe2a7bf3b75fc6912bb91" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
  '(flycheck-checker-error-threshold 1000)
  '(gdb-create-source-file-list nil)
+ '(ispell-dictionary nil)
  '(package-selected-packages
-   '(editorconfig lua-mode gist alect-themes rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
+   '(helm-lsp editorconfig lua-mode gist alect-themes rust-mode docker-compose-mode dockerfile-mode groovy-mode solarized-theme use-package redo+ markdown-mode llvm-mode highlight-parentheses graphviz-dot-mode ggtags erlang color-theme))
  '(safe-local-variable-values
-   '((eval when
+   '((c-set-offset . 2)
+     (eval when
            (fboundp 'c-toggle-comment-style)
            (c-toggle-comment-style 1))
      (eval c-set-offset 'innamespace 0)
